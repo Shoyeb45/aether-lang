@@ -22,12 +22,21 @@ int main(int argc, char *argv[]) {
     const std::string command = argv[1];
 
     if (command == "tokenize") {
-        std::string file_contents = read_file_contents(argv[2]);
-        std::vector<std::string> tokens = scan_file(file_contents);
+        std::vector<std::string> file_contents = read_file_contents(argv[2]);
+
+        auto [tokens, errors] = scan_file(file_contents);
 
         for (auto &token: tokens) {
             std::cout << token << "\n";
         }
+        
+        if (errors.size() > 0) {
+            for (auto &err: errors) {
+                std::cerr << err << "\n";  
+            }
+            exit(65);
+        }
+
     } else {
         std::cerr << "Unknown command: " << command << std::endl;
         return 1;

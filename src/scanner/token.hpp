@@ -23,11 +23,15 @@ struct Token {
     TokenType type;
     std::string lexeme;
     std::string literal;
-
-    // int line;
+    char original_token;
+    int line;
     // int column;
+
+    Token(char, TokenType, int);
+    Token(char, TokenType, std::string, std::string, int);
 
     std::string to_string() const;
     std::string token_type_to_string() const;
     std::string token_type_to_symbol() const;
+    std::string to_lexical_error() const;
 };

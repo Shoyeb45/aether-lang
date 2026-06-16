@@ -1,3 +1,4 @@
-# include<string>
+#include <string>
+#include <vector>
 
-std::string read_file_contents(const std::string& filename);
+std::vector<std::string> read_file_contents(const std::string& filename);
