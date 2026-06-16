@@ -8,6 +8,15 @@ enum class TokenType {
     RIGHT_PAREN,
     LEFT_BRACE,
     RIGHT_BRACE,
+    COMMA,
+    DOT,
+    MINUS,
+    PLUS,
+    SEMICOLON,
+    SLASH,
+    STAR,
+
+    UNKNOWN
 };
 
 struct Token {
@@ -20,4 +29,5 @@ struct Token {
 
     std::string to_string() const;
     std::string token_type_to_string() const;
+    std::string token_type_to_symbol() const;
 };
