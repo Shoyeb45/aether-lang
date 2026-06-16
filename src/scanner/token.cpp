@@ -12,6 +12,10 @@ std::string Token::token_type_to_string() const {
             return "LEFT_PAREN";
         case TokenType::RIGHT_PAREN:
             return "RIGHT_PAREN";
+        case TokenType::LEFT_BRACE:
+            return "LEFT_BRACE";
+        case TokenType::RIGHT_BRACE:
+            return "RIGHT_BRACE";
         default:
             return "";
     }
