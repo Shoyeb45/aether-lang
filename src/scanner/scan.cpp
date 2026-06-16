@@ -78,14 +78,18 @@ std::pair<std::vector<std::string>, std::vector<std::string>> scan_file(const st
         const std::string &file_content = file_contents[idx];
 
         for (int i = 0; i < file_content.size(); ) {
+            if (file_content[i] == ' ' || file_content[i] == '\t') {
+                i++;
+                continue;
+            }
             // identify comment and ignore everything
             if (i + 1 < file_content.size() && file_content.substr(i, 2) == "//") {
                 break;
             }
             auto [token_type, add] = identify_token(i, file_content);
-
             const Token token = Token{file_content.substr(i, add), token_type, line};
             i += add;
+
             if (token_type == TokenType::UNKNOWN) {
                 lexical_errors.push_back(token.to_lexical_error());
                 continue;
