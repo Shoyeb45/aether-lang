@@ -9,7 +9,7 @@ Token::Token(std::string orgnal_char, TokenType type, int line) {
     this->literal = "null";
 }
 
-Token::Token(std::string original_token,TokenType type, std::string lexeme, std::string literal, int line)
+Token::Token(std::string original_token, TokenType type, std::string lexeme, std::string literal, int line)
     : type(type), lexeme(lexeme), literal(literal), line(line), original_token(original_token) {}
 
 std::string Token::to_string() const {

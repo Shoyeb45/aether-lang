@@ -20,7 +20,7 @@ enum class TokenType {
     BANG,
     LESS,
     GREATER,
-
+    
     // 2 char token
     EQUAL_EQUAL,
     BANG_EQUAL,
