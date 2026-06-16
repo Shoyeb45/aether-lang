@@ -15,6 +15,8 @@ enum class TokenType {
     SEMICOLON,
     SLASH,
     STAR,
+    EQUAL,
+    EQUAL_EQUAL,
 
     UNKNOWN
 };
@@ -23,12 +25,12 @@ struct Token {
     TokenType type;
     std::string lexeme;
     std::string literal;
-    char original_token;
+    std::string original_token;
     int line;
     // int column;
 
-    Token(char, TokenType, int);
-    Token(char, TokenType, std::string, std::string, int);
+    Token(std::string, TokenType, int);
+    Token(std::string, TokenType, std::string, std::string, int);
 
     std::string to_string() const;
     std::string token_type_to_string() const;

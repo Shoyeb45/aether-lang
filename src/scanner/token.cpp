@@ -1,7 +1,7 @@
 #include "token.hpp"
 #include <string>
 
-Token::Token(char orgnal_char, TokenType type, int line) {
+Token::Token(std::string orgnal_char, TokenType type, int line) {
     this->original_token = orgnal_char;
     this->type = type;
     this->line = line;
@@ -9,7 +9,7 @@ Token::Token(char orgnal_char, TokenType type, int line) {
     this->literal = "null";
 }
 
-Token::Token(char original_token,TokenType type, std::string lexeme, std::string literal, int line)
+Token::Token(std::string original_token,TokenType type, std::string lexeme, std::string literal, int line)
     : type(type), lexeme(lexeme), literal(literal), line(line), original_token(original_token) {}
 
 std::string Token::to_string() const {
@@ -57,6 +57,10 @@ std::string Token::token_type_to_string() const {
         return "SLASH";
     case TokenType::STAR:
         return "STAR";
+    case TokenType::EQUAL:
+        return "EQUAL";
+    case TokenType::EQUAL_EQUAL:
+        return "EQUAL_EQUAL";
     case TokenType::UNKNOWN:
     default:
         return "";
@@ -89,6 +93,10 @@ std::string Token::token_type_to_symbol() const {
         return "/";
     case TokenType::STAR:
         return "*";
+    case TokenType::EQUAL:
+        return "=";
+    case TokenType::EQUAL_EQUAL:
+        return "==";
     default:
         return "";
     }

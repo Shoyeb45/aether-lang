@@ -2,7 +2,13 @@
 #include "token.hpp"
 #include <iostream>
 
-TokenType identify_token(char ch) {
+TokenType identify_two_len_token(std::string str) {
+    if (str == "==") 
+        return TokenType::EQUAL_EQUAL;
+    return TokenType::UNKNOWN;
+}
+
+TokenType identify_one_len_token(char ch) {
     switch (ch) {
     case '(':
         return TokenType::LEFT_PAREN;
@@ -26,8 +32,27 @@ TokenType identify_token(char ch) {
         return TokenType::SEMICOLON;
     case '/':
         return TokenType::SLASH;
+    case '=':
+        return TokenType::EQUAL;
     }
     return TokenType::UNKNOWN;
+}
+
+std::pair<TokenType, int> identify_token(int idx, const std::string &file_content) {
+    TokenType type = TokenType::UNKNOWN;
+    int add = 1;
+
+    if (idx + 1 < file_content.size()) {
+        type = identify_two_len_token(file_content.substr(idx, 2));
+        add += type != TokenType::UNKNOWN;
+    }
+    
+    // identify one character token
+    if (type == TokenType::UNKNOWN) {
+        type = identify_one_len_token(file_content[idx]);
+    }
+
+    return std::make_pair(type, add);
 }
 
 
@@ -38,11 +63,13 @@ std::pair<std::vector<std::string>, std::vector<std::string>> scan_file(const st
     for (int idx = 0; idx < file_contents.size(); idx++) {
         int line = idx + 1;
         const std::string &file_content = file_contents[idx];
+        std::cerr << line << " " << file_content << "\n";
 
-        for (char ch: file_content) {
-            TokenType token_type = identify_token(ch);
+        for (int i = 0; i < file_content.size(); ) {
+            auto [token_type, add] = identify_token(i, file_content);
 
-            const Token token = Token{ch, token_type, line};
+            const Token token = Token{file_content.substr(i, add), token_type, line};
+            i += add;
             if (token_type == TokenType::UNKNOWN) {
                 lexical_errors.push_back(token.to_lexical_error());
                 continue;
@@ -52,6 +79,6 @@ std::pair<std::vector<std::string>, std::vector<std::string>> scan_file(const st
     }
 
     // EOF file token
-    tokens.push_back(Token{EOF, TokenType::END_OF_FILE, file_contents.size()}.to_string());
+    tokens.push_back(Token{"", TokenType::END_OF_FILE, file_contents.size()}.to_string());
     return std::make_pair(tokens, lexical_errors);
 }
