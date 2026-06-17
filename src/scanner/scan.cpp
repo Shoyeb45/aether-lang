@@ -3,7 +3,7 @@
 #include <iostream>
 
 TokenType identify_two_len_token(std::string str) {
-    if (str == "==") 
+    if (str == "==")
         return TokenType::EQUAL_EQUAL;
     else if (str == "!=")
         return TokenType::BANG_EQUAL;
@@ -11,7 +11,7 @@ TokenType identify_two_len_token(std::string str) {
         return TokenType::GREATER_EQUAL;
     else if (str == "<=")
         return TokenType::LESS_EQUAL;
-        
+
     return TokenType::UNKNOWN_CHARACTER;
 }
 
@@ -69,18 +69,27 @@ std::pair<TokenType, int> identify_token(int idx, const std::string &file_conten
 
     // identifier
     if (is_start_identifier(file_content[idx])) {
-        type = TokenType::IDENTIFIER;
+        std::string word(1, file_content[idx]);
+
         for (int i = idx + 1; i < file_content.size(); i++) {
             if (is_start_identifier(file_content[i]) || isnumber(file_content[i])) {
                 add++;
+                word += file_content[i];
                 continue;
             }
             break;
         }
+        std::cerr << "identifier " << word << "\n";
+        if (reserved_words.find(word) != reserved_words.end()) {
+            type = TokenType::RESERVED_WORD;
+        } else {
+            type = TokenType::IDENTIFIER;
+        }
     }
 
-    // identify number literal
+    // identify number literal and reserved word
     if (isnumber(file_content[idx])) {
+
         for (int i = idx + 1; i < file_content.size(); i++) {
             if (isnumber(file_content[i]) || file_content[i] == '.') {
                 add++;
@@ -107,7 +116,7 @@ std::pair<TokenType, int> identify_token(int idx, const std::string &file_conten
         type = identify_two_len_token(file_content.substr(idx, 2));
         add += type != TokenType::UNKNOWN_CHARACTER;
     }
-    
+
     // identify one character token
     if (type == TokenType::UNKNOWN_CHARACTER) {
         type = identify_one_len_token(file_content[idx]);
@@ -124,7 +133,7 @@ std::pair<std::vector<std::string>, std::vector<std::string>> scan_file(const st
         int line = idx + 1;
         const std::string &file_content = file_contents[idx];
 
-        for (int i = 0; i < file_content.size(); ) {
+        for (int i = 0; i < file_content.size();) {
             if (is_whitespace_char(file_content[i])) {
                 i++;
                 continue;

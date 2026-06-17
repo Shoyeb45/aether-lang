@@ -84,6 +84,8 @@ std::string Token::token_type_to_string() const {
         return "NUMBER";
     case TokenType::IDENTIFIER:
         return "IDENTIFIER";
+    case TokenType::RESERVED_WORD:
+        return reserved_words.at(original_token);
     case TokenType::UNKNOWN_CHARACTER:
     default:
         return "";
@@ -135,6 +137,7 @@ std::string Token::token_type_to_lexeme() const {
     case TokenType::STRING:
     case TokenType::NUMBER:
     case TokenType::IDENTIFIER:
+    case TokenType::RESERVED_WORD:
         return original_token;
     default:
         return "";

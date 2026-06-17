@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 
 enum class TokenType {
     END_OF_FILE,
@@ -35,8 +36,16 @@ enum class TokenType {
     NUMBER,
     
     IDENTIFIER,
+    RESERVED_WORD,
+
     UNKNOWN_CHARACTER
 };
+
+inline const std::unordered_map<std::string, std::string> reserved_words = {
+    {"and", "AND"},   {"class", "CLASS"}, {"else", "ELSE"},     {"false", "FALSE"},
+    {"for", "FOR"},   {"fun", "FUN"},     {"if", "IF"},         {"nil", "NIL"},
+    {"or", "OR"},     {"print", "PRINT"}, {"return", "RETURN"}, {"super", "SUPER"},
+    {"this", "THIS"}, {"true", "TRUE"},   {"var", "VAR"},       {"while", "WHILE"}};
 
 struct Token {
     TokenType type;
