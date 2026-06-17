@@ -82,6 +82,8 @@ std::string Token::token_type_to_string() const {
         return "STRING";
     case TokenType::NUMBER:
         return "NUMBER";
+    case TokenType::IDENTIFIER:
+        return "IDENTIFIER";
     case TokenType::UNKNOWN_CHARACTER:
     default:
         return "";
@@ -132,6 +134,7 @@ std::string Token::token_type_to_lexeme() const {
         return ">=";
     case TokenType::STRING:
     case TokenType::NUMBER:
+    case TokenType::IDENTIFIER:
         return original_token;
     default:
         return "";

@@ -34,6 +34,7 @@ enum class TokenType {
     // number
     NUMBER,
     
+    IDENTIFIER,
     UNKNOWN_CHARACTER
 };
 

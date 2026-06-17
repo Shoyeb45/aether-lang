@@ -59,9 +59,25 @@ bool isnumber(char ch) {
     return ch >= '0' && ch <= '9';
 }
 
+bool is_start_identifier(char ch) {
+    return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch == '_';
+}
+
 std::pair<TokenType, int> identify_token(int idx, const std::string &file_content) {
     TokenType type = TokenType::UNKNOWN_CHARACTER;
     int add = 1;
+
+    // identifier
+    if (is_start_identifier(file_content[idx])) {
+        type = TokenType::IDENTIFIER;
+        for (int i = idx + 1; i < file_content.size(); i++) {
+            if (is_start_identifier(file_content[i]) || isnumber(file_content[i])) {
+                add++;
+                continue;
+            }
+            break;
+        }
+    }
 
     // identify number literal
     if (isnumber(file_content[idx])) {
