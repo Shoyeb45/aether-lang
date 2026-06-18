@@ -21,8 +21,8 @@ std::vector<std::string> read_file_contents(const std::string& filename) {
     return file_contents;
 }
 
-// Define standard whitespace characters
-const std::string WHITESPACE = " \n\r\t\f\\v";
+
+inline const std::string WHITESPACE = " \n\r\t\f\\v";
 
 std::string ltrim(const std::string& s) {
     size_t start = s.find_first_not_of(WHITESPACE);

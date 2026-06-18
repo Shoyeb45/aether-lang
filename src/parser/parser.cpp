@@ -37,7 +37,7 @@ bool Parser::match(TokenType type) {
 }
 
 ASTNode *Parser::expression() {
-    return term();
+    return comparison();
 }
 
 ASTNode *Parser::primary() {
@@ -86,6 +86,20 @@ ASTNode *Parser::unary() {
     }
 
     return primary();
+}
+
+ASTNode *Parser::comparison() {
+    ASTNode *expr = term();
+
+    while (check(TokenType::LESS) || check(TokenType::LESS_EQUAL) || check(TokenType::GREATER) ||
+           check(TokenType::GREATER_EQUAL)) {
+        Token op = advance();
+        ASTNode *right = factor();
+
+        expr = new Binary(expr, right, op);
+    }
+
+    return expr;
 }
 
 ASTNode *Parser::term() {
