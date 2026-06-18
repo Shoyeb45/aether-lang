@@ -28,6 +28,7 @@ bool Parser::check(TokenType type) {
     }
     return false;
 }
+
 bool Parser::match(TokenType type) {
     if (peek().type == type) {
         advance();
@@ -37,7 +38,7 @@ bool Parser::match(TokenType type) {
 }
 
 ASTNode *Parser::expression() {
-    return comparison();
+    return equality();
 }
 
 ASTNode *Parser::primary() {
@@ -93,6 +94,19 @@ ASTNode *Parser::comparison() {
 
     while (check(TokenType::LESS) || check(TokenType::LESS_EQUAL) || check(TokenType::GREATER) ||
            check(TokenType::GREATER_EQUAL)) {
+        Token op = advance();
+        ASTNode *right = factor();
+
+        expr = new Binary(expr, right, op);
+    }
+
+    return expr;
+}
+
+ASTNode *Parser::equality() {
+    ASTNode *expr = comparison();
+
+    while (check(TokenType::EQUAL_EQUAL) || check(TokenType::BANG_EQUAL)) {
         Token op = advance();
         ASTNode *right = factor();
 
