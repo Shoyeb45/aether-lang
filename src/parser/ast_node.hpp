@@ -46,8 +46,8 @@ struct Binary : ASTNode {
     std::string visualize() override {
         std::string visulz =  " (" + this->operation.lexeme;
 
-        visulz += this->left->visualize();
-        visulz += this->right->visualize();
+        visulz += left ? left->visualize(): "";
+        visulz += right ? right->visualize(): "";
         return visulz + ")";
     }
 };
@@ -62,7 +62,7 @@ struct Group : ASTNode {
 
     std::string visualize() override {
         std::string visulz = " (group";
-        visulz += this->ast_node->visualize();
+        visulz += ast_node ? ast_node->visualize(): "";
         return visulz + ")";
     }
 };
@@ -79,7 +79,7 @@ struct Unary : ASTNode {
 
     std::string visualize() override {
         std::string visulz = " (" + token.lexeme;
-        visulz += this->child->visualize();
+        visulz += child ? child->visualize(): "";
         return visulz + ")";
     }
 };

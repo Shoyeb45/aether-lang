@@ -53,6 +53,10 @@ ASTNode *Parser::primary() {
 
         // create node for the group
         ASTNode *expr = expression();
+        if (!expr) {
+            std::cerr << "error" << "\n";
+            return nullptr;
+        }
         ASTNode *grp_node = new Group(expr);
 
         if (!match(TokenType::RIGHT_PAREN)) {
@@ -62,6 +66,7 @@ ASTNode *Parser::primary() {
         return grp_node;
     }
 
+    errors.push_back("[line " + std::to_string(peek().line) + "] Error at ')': Expect expression.");
     return nullptr;
 }
 
@@ -134,4 +139,12 @@ void Parser::visualize() {
         return;
     std::string ast = root->visualize();
     std::cout << trim(ast) << "\n";
+}
+
+
+void Parser::report_error() {
+    if (!is_error()) return;
+    for (int i = 0; i < errors.size(); i++) {
+        std::cerr << errors[i] << "\n";
+    }
 }

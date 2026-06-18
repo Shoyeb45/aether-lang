@@ -5,6 +5,7 @@
 
 struct Parser {
     std::vector<Token> tokens;
+    std::vector<std::string> errors;
     ASTNode *root;
     int curr_index = 0;
 
@@ -38,4 +39,9 @@ public:
         return root = expression();
     }
     void visualize();
+    void report_error();
+    
+    bool is_error() {
+        return errors.size() > 0;
+    }
 };

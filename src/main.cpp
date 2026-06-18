@@ -50,7 +50,14 @@ int main(int argc, char *argv[]) {
 
         Parser *parser = new Parser(tokens);
         parser->parse();
-        parser->visualize();        
+
+        if (parser->is_error()) {
+            parser->report_error();
+            std::exit(65);
+        } else {
+            parser->visualize();    
+        }
+        
 
     } else {
         std::cerr << "Unknown command: " << command << std::endl;
