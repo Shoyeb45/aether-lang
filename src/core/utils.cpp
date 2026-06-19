@@ -37,3 +37,28 @@ std::string rtrim(const std::string& s) {
 std::string trim(const std::string& s) {
     return rtrim(ltrim(s));
 }
+
+std::string normalize_number_literal(const std::string &num) {
+    std::string str_num = std::to_string(std::stod(num));
+
+    while (!str_num.empty() && str_num.back() == '0') {
+        str_num.pop_back();
+    }
+
+    if (str_num.back() == '.')
+        str_num += "0";
+    return str_num;
+}
+
+std::string normalize_number_literal(const double num) {
+    std::string str_num = std::to_string(num);
+
+    while (!str_num.empty() && str_num.back() == '0') {
+        str_num.pop_back();
+    }
+    
+    if (!str_num.empty() && str_num.back() == '.')
+        str_num.pop_back();
+
+    return str_num;
+}

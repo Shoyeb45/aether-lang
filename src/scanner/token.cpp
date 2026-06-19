@@ -1,5 +1,6 @@
 #include "token.hpp"
 #include <string>
+#include "../core/utils.hpp"
 
 Token::Token(std::string orgnal_char, TokenType type, int line) {
     this->original_token = orgnal_char;
@@ -150,17 +151,7 @@ std::string Token::token_type_to_lexeme() const {
     }
 }
 
-std::string normalize_number_literal(const std::string &num) {
-    std::string str_num = std::to_string(std::stod(num));
 
-    while (!str_num.empty() && str_num.back() == '0') {
-        str_num.pop_back();
-    }
-
-    if (str_num.back() == '.')
-        str_num += "0";
-    return str_num;
-}
 
 std::string Token::get_literal() const {
     switch (type) {

@@ -1,5 +1,6 @@
 #include "evaluator.hpp"
 #include "../core/runtime_value.hpp"
+#include "../core/utils.hpp"
 #include <string>
 
 std::string Evaluator::evaluate() {
@@ -12,7 +13,7 @@ std::string Evaluator::evaluate() {
     } else if (is_false(result)) {
         return "false";
     } else if (is_number(result)) {
-        return std::to_string(std::get<double>(result));
+        return normalize_number_literal(std::get<double>(result));
     } else if (is_nil(result)) {
         return "nil";
     } else if (is_string(result)) {
