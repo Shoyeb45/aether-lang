@@ -48,8 +48,9 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
         return left / right;
     }
     case TokenType::MINUS: {
-        if (is_string(left_val) || is_string(right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("Subtraction operand can't be string: "));
+        if (is_string(left_val) || is_string(right_val) || is_bool(right_val) || is_bool(left_val) ||
+            is_nil(left_val) || is_nil(right_val)) {
+            errors.push_back(binary_node->operation.construct_err_message("Subtraction operand can't be string"));
             return nullptr;
         }
         double left = std::get<double>(left_val), right = std::get<double>(right_val);
@@ -60,6 +61,12 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
         if (is_string(left_val) && is_string(right_val)) {
             return std::get<std::string>(left_val) + std::get<std::string>(right_val);
         }
+        if (is_string(left_val) || is_string(right_val) || is_bool(right_val) || is_bool(left_val) ||
+            is_nil(left_val) || is_nil(right_val)) {
+            errors.push_back(binary_node->operation.construct_err_message("Addition operand should be number"));
+            return nullptr;
+        }
+
         double left = std::get<double>(left_val), right = std::get<double>(right_val);
         return left + right;
     }
