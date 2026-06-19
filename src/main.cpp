@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
     if (argc < 3) {
         std::cerr << "Usage: ./run tokenize <filename>" << std::endl;
         std::cerr << "Usage: ./run parse <filename>" << std::endl;
+        std::cerr << "Usage: ./run evaluate <filename>" << std::endl;
         return 1;
     }
 
@@ -77,6 +78,12 @@ int main(int argc, char *argv[]) {
         
         Evaluator *evaluator = new Evaluator(root);
         std::string evaluation_result = evaluator->evaluate();
+
+        if (evaluator->errors.size() > 0) {
+            for (int i = 0; i < evaluator->errors.size(); i++)
+                std::cerr << evaluator->errors[i] << "\n";
+            std::exit(70);
+        }
         std::cout << evaluation_result << "\n";
     } else {
         std::cerr << "Unknown command: " << command << std::endl;

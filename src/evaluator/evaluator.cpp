@@ -22,88 +22,85 @@ std::string Evaluator::evaluate() {
     return "";
 }
 
-
 RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
     RuntimeValue left_val = evaluate(binary_node->left);
     RuntimeValue right_val = evaluate(binary_node->right);
 
     switch (binary_node->operation.type) {
-        case TokenType::STAR: {
-            if (is_string(left_val) || is_string(right_val)) {
-                // error
-                return nullptr;
-            }
-            double left = std::get<double>(left_val), right = std::get<double>(right_val);
-            return left * right;
+    case TokenType::STAR: {
+        if (is_string(left_val) || is_string(right_val)) {
+            // error
+            return nullptr;
         }
-        case TokenType::SLASH: {
-            if (is_string(left_val) || is_string(right_val)) {
-                // error
-                return nullptr;
-            }
-            double left = std::get<double>(left_val), right = std::get<double>(right_val);
-            if ((int) right == 0) {
-                // error and improve comparison
-                return nullptr;
-            }
-            return left / right;
-
+        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        return left * right;
+    }
+    case TokenType::SLASH: {
+        if (is_string(left_val) || is_string(right_val)) {
+            // error
+            return nullptr;
         }
-        case TokenType::MINUS: {
-            if (is_string(left_val) || is_string(right_val)) {
-                // error
-                return nullptr;
-            }
-            double left = std::get<double>(left_val), right = std::get<double>(right_val);
-            return left - right;
+        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        if ((int)right == 0) {
+            // error and improve comparison
+            return nullptr;
         }
-        case TokenType::PLUS: {
-            // string concatenation
-            if (is_string(left_val) && is_string(right_val)) {
-                return std::get<std::string>(left_val) + std::get<std::string>(right_val); 
-            }
-            double left = std::get<double>(left_val), right = std::get<double>(right_val);
-            return left + right;
+        return left / right;
+    }
+    case TokenType::MINUS: {
+        if (is_string(left_val) || is_string(right_val)) {
+            // error
+            return nullptr;
         }
-        case TokenType::LESS: {
-            if (is_string(left_val) || is_string(right_val)) {
-                // error
-                return nullptr;
-            }
-            double left = std::get<double>(left_val), right = std::get<double>(right_val);
-            return left < right;
+        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        return left - right;
+    }
+    case TokenType::PLUS: {
+        // string concatenation
+        if (is_string(left_val) && is_string(right_val)) {
+            return std::get<std::string>(left_val) + std::get<std::string>(right_val);
         }
-        case TokenType::LESS_EQUAL: {
-            if (is_string(left_val) || is_string(right_val)) {
-                // error
-                return nullptr;
-            }
-            double left = std::get<double>(left_val), right = std::get<double>(right_val);
-            return left <= right;
-            
+        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        return left + right;
+    }
+    case TokenType::LESS: {
+        if (is_string(left_val) || is_string(right_val)) {
+            // error
+            return nullptr;
         }
-        case TokenType::GREATER: {
-            if (is_string(left_val) || is_string(right_val)) {
-                // error
-                return nullptr;
-            }
-            double left = std::get<double>(left_val), right = std::get<double>(right_val);
-            return left > right;
+        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        return left < right;
+    }
+    case TokenType::LESS_EQUAL: {
+        if (is_string(left_val) || is_string(right_val)) {
+            // error
+            return nullptr;
         }
-        case TokenType::GREATER_EQUAL: {
-            if (is_string(left_val) || is_string(right_val)) {
-                // error
-                return nullptr;
-            }
-            double left = std::get<double>(left_val), right = std::get<double>(right_val);
-            return left >= right;
+        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        return left <= right;
+    }
+    case TokenType::GREATER: {
+        if (is_string(left_val) || is_string(right_val)) {
+            // error
+            return nullptr;
         }
-        case TokenType::EQUAL_EQUAL: {
-            return left_val == right_val;
+        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        return left > right;
+    }
+    case TokenType::GREATER_EQUAL: {
+        if (is_string(left_val) || is_string(right_val)) {
+            // error
+            return nullptr;
         }
-        case TokenType::BANG_EQUAL: {
-            return left_val != right_val;
-        }
+        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        return left >= right;
+    }
+    case TokenType::EQUAL_EQUAL: {
+        return left_val == right_val;
+    }
+    case TokenType::BANG_EQUAL: {
+        return left_val != right_val;
+    }
     }
     return nullptr;
 }
@@ -112,27 +109,27 @@ RuntimeValue Evaluator::perform_unary_operation(Unary *unary_node) {
     RuntimeValue val = evaluate(unary_node->child);
 
     switch (unary_node->token.type) {
-        case TokenType::BANG: {
-            if (is_string(val)) {
-                // error hanlding
-                return nullptr;
-            }
-            if (is_number(val)) {
-                return !std::get<double>(val);
-            }
-            if (is_false(val) || is_true(val)) 
-                return !std::get<bool>(val);
-            if (is_nil(val))
-                return true;
-            // error handling
-            return nullptr;
-        }
-        case TokenType::MINUS:
-            if (is_number(val))
-                return -std::get<double>(val);
-            // error handling
-            return nullptr;
+    case TokenType::BANG: {
+        if (is_number(val))
+            return !std::get<double>(val);
+        if (is_false(val) || is_true(val))
+            return !std::get<bool>(val);
+        if (is_nil(val))
+            return true;
+
+        errors.push_back("[line " + std::to_string(unary_node->token.line) + "] Expected operands 'true', 'false' or 'nil'");
+        return nullptr;
     }
+    case TokenType::MINUS:
+        if (is_number(val))
+            return -std::get<double>(val);
+
+        errors.push_back("[line " + std::to_string(unary_node->token.line) + "] Expected operand 'number'");
+        return nullptr;
+    }
+
+    errors.push_back("[line " + std::to_string(unary_node->token.line) +
+                     "] Unknown operand. Expected 'number', 'nil', 'true' or 'false'");
     // potential error handling
     return nullptr;
 }
