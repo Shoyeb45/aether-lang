@@ -10,7 +10,7 @@ struct Evaluator {
     Evaluator(ASTNode* root): root(root) {}
     RuntimeValue evaluate(ASTNode* node);
     RuntimeValue perform_binary_opration(Binary* binary_node);
-
+    RuntimeValue perform_unary_operation(Unary *unary_node);
 public:
     std::string evaluate();
 };
