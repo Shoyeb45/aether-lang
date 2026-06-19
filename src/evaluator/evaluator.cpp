@@ -22,13 +22,17 @@ std::string Evaluator::evaluate() {
     return "";
 }
 
+bool check_invalid_values(RuntimeValue &v1, RuntimeValue &v2) {
+    return is_string(v1) || is_string(v2) || is_bool(v2) || is_bool(v1) || is_nil(v1) || is_nil(v2);
+}
+
 RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
     RuntimeValue left_val = evaluate(binary_node->left);
     RuntimeValue right_val = evaluate(binary_node->right);
 
     switch (binary_node->operation.type) {
     case TokenType::STAR: {
-        if (is_string(left_val) || is_string(right_val) || is_bool(right_val) || is_bool(left_val)) {
+        if (check_invalid_values(left_val, right_val)) {
             errors.push_back(binary_node->operation.construct_err_message("Multiplication operand can't be string"));
             return nullptr;
         }
@@ -36,7 +40,7 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
         return left * right;
     }
     case TokenType::SLASH: {
-        if (is_string(left_val) || is_string(right_val) || is_bool(right_val) || is_bool(left_val)) {
+        if (check_invalid_values(left_val, right_val)) {
             errors.push_back(binary_node->operation.construct_err_message("Division operand can't be string "));
             return nullptr;
         }
@@ -48,8 +52,7 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
         return left / right;
     }
     case TokenType::MINUS: {
-        if (is_string(left_val) || is_string(right_val) || is_bool(right_val) || is_bool(left_val) ||
-            is_nil(left_val) || is_nil(right_val)) {
+        if (check_invalid_values(left_val, right_val)) {
             errors.push_back(binary_node->operation.construct_err_message("Subtraction operand can't be string"));
             return nullptr;
         }
@@ -61,8 +64,7 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
         if (is_string(left_val) && is_string(right_val)) {
             return std::get<std::string>(left_val) + std::get<std::string>(right_val);
         }
-        if (is_string(left_val) || is_string(right_val) || is_bool(right_val) || is_bool(left_val) ||
-            is_nil(left_val) || is_nil(right_val)) {
+        if (check_invalid_values(left_val, right_val)) {
             errors.push_back(binary_node->operation.construct_err_message("Addition operand should be number"));
             return nullptr;
         }
@@ -71,32 +73,32 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
         return left + right;
     }
     case TokenType::LESS: {
-        if (is_string(left_val) || is_string(right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("String values can't be compared"));
+        if (check_invalid_values(left_val, right_val)) {
+            errors.push_back(binary_node->operation.construct_err_message("Operands must be a number"));
             return nullptr;
         }
         double left = std::get<double>(left_val), right = std::get<double>(right_val);
         return left < right;
     }
     case TokenType::LESS_EQUAL: {
-        if (is_string(left_val) || is_string(right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("String values can't be compared"));
+        if (check_invalid_values(left_val, right_val)) {
+            errors.push_back(binary_node->operation.construct_err_message("Operands must be a number"));
             return nullptr;
         }
         double left = std::get<double>(left_val), right = std::get<double>(right_val);
         return left <= right;
     }
     case TokenType::GREATER: {
-        if (is_string(left_val) || is_string(right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("String values can't be compared"));
+        if (check_invalid_values(left_val, right_val)) {
+            errors.push_back(binary_node->operation.construct_err_message("Operands must be a number"));
             return nullptr;
         }
         double left = std::get<double>(left_val), right = std::get<double>(right_val);
         return left > right;
     }
     case TokenType::GREATER_EQUAL: {
-        if (is_string(left_val) || is_string(right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("String values can't be compared"));
+        if (check_invalid_values(left_val, right_val)) {
+            errors.push_back(binary_node->operation.construct_err_message("Operands must be a number"));
             return nullptr;
         }
         double left = std::get<double>(left_val), right = std::get<double>(right_val);
