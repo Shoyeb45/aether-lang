@@ -97,7 +97,12 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
             }
             double left = std::get<double>(left_val), right = std::get<double>(right_val);
             return left >= right;
-
+        }
+        case TokenType::EQUAL_EQUAL: {
+            return left_val == right_val;
+        }
+        case TokenType::BANG_EQUAL: {
+            return left_val != right_val;
         }
     }
     return nullptr;
