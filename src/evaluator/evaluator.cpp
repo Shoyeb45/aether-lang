@@ -65,6 +65,40 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
             double left = std::get<double>(left_val), right = std::get<double>(right_val);
             return left + right;
         }
+        case TokenType::LESS: {
+            if (is_string(left_val) || is_string(right_val)) {
+                // error
+                return nullptr;
+            }
+            double left = std::get<double>(left_val), right = std::get<double>(right_val);
+            return left < right;
+        }
+        case TokenType::LESS_EQUAL: {
+            if (is_string(left_val) || is_string(right_val)) {
+                // error
+                return nullptr;
+            }
+            double left = std::get<double>(left_val), right = std::get<double>(right_val);
+            return left <= right;
+            
+        }
+        case TokenType::GREATER: {
+            if (is_string(left_val) || is_string(right_val)) {
+                // error
+                return nullptr;
+            }
+            double left = std::get<double>(left_val), right = std::get<double>(right_val);
+            return left > right;
+        }
+        case TokenType::GREATER_EQUAL: {
+            if (is_string(left_val) || is_string(right_val)) {
+                // error
+                return nullptr;
+            }
+            double left = std::get<double>(left_val), right = std::get<double>(right_val);
+            return left >= right;
+
+        }
     }
     return nullptr;
 }
