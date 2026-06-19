@@ -181,3 +181,20 @@ bool Token::is_error() const {
     }
     return false;
 }
+
+RuntimeValue Token::get_runtime_value() {
+    switch (type) {
+    case TokenType::NUMBER:
+        return std::stod(original_token);
+    case TokenType::STRING:
+        return get_literal();
+    case TokenType::TRUE:
+        return true;
+    case TokenType::FALSE:
+        return false;
+    case TokenType::NIL:
+    default:
+        return nullptr;
+        // throw std::runtime_error("Token cannot be converted to RuntimeValue");
+    }
+}

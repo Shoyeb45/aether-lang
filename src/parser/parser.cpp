@@ -100,7 +100,7 @@ ASTNode *Parser::comparison() {
     while (check(TokenType::LESS) || check(TokenType::LESS_EQUAL) || check(TokenType::GREATER) ||
            check(TokenType::GREATER_EQUAL)) {
         Token op = advance();
-        ASTNode *right = factor();
+        ASTNode *right = term();
 
         expr = new Binary(expr, right, op);
     }
@@ -113,7 +113,7 @@ ASTNode *Parser::equality() {
 
     while (check(TokenType::EQUAL_EQUAL) || check(TokenType::BANG_EQUAL)) {
         Token op = advance();
-        ASTNode *right = factor();
+        ASTNode *right = comparison();
 
         expr = new Binary(expr, right, op);
     }
@@ -141,9 +141,9 @@ void Parser::visualize() {
     std::cout << trim(ast) << "\n";
 }
 
-
 void Parser::report_error() {
-    if (!is_error()) return;
+    if (!is_error())
+        return;
     for (int i = 0; i < errors.size(); i++) {
         std::cerr << errors[i] << "\n";
     }

@@ -9,6 +9,7 @@
 #include "core/utils.hpp"
 #include "scanner/scanner.hpp"
 #include "parser/parser.hpp"
+#include "evaluator/evaluator.hpp"
 
 
 int main(int argc, char *argv[]) {
@@ -57,8 +58,26 @@ int main(int argc, char *argv[]) {
         } else {
             parser->visualize();    
         }
-        
 
+    } else if (command == "evaluate") {
+        auto tokens = LexicalScanner::scan_file(file_contents);
+
+        if (LexicalScanner::is_lexical_error_present(tokens)) {
+            LexicalScanner::print_lexical_error(tokens);
+            std::exit(65);
+        }
+
+        Parser *parser = new Parser(tokens);
+
+        if (parser->is_error()) {
+            parser->report_error();
+            std::exit(65);
+        }
+        ASTNode *root = parser->parse();
+        
+        Evaluator *evaluator = new Evaluator(root);
+        std::string evaluation_result = evaluator->evaluate();
+        std::cout << evaluation_result << "\n";
     } else {
         std::cerr << "Unknown command: " << command << std::endl;
         return 1;

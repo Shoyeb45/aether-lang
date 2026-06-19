@@ -2,6 +2,8 @@
 
 #include <string>
 #include <unordered_map>
+#include <variant>
+#include "../core/runtime_value.hpp"
 
 enum class TokenType {
     END_OF_FILE,
@@ -21,23 +23,23 @@ enum class TokenType {
     BANG,
     LESS,
     GREATER,
-    
+
     // 2 char token
     EQUAL_EQUAL,
     BANG_EQUAL,
     LESS_EQUAL,
     GREATER_EQUAL,
-    
+
     // Literals
     STRING,
     NUMBER,
     TRUE,
     FALSE,
     NIL,
-    
+
     IDENTIFIER,
     RESERVED_WORD,
-    
+
     // Error token
     UNKNOWN_CHARACTER,
     STRING_UNTERMINATED,
@@ -56,7 +58,7 @@ struct Token {
     std::string original_token;
     int line;
 
-    Token(): type(TokenType::UNKNOWN_CHARACTER) {}
+    Token() : type(TokenType::UNKNOWN_CHARACTER) {}
 
     Token(std::string, TokenType, int);
     Token(std::string, TokenType, std::string, std::string, int);
@@ -68,7 +70,9 @@ struct Token {
     std::string get_literal() const;
     bool is_error() const;
 
-    friend std::ostream& operator<<(std::ostream& os, Token token) {
+    RuntimeValue get_runtime_value();
+
+    friend std::ostream &operator<<(std::ostream &os, Token token) {
         os << token.to_string();
         return os;
     }
