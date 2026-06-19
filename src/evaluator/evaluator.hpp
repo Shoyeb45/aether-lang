@@ -13,7 +13,7 @@ struct Evaluator {
     RuntimeValue evaluate(ASTNode* node);
     RuntimeValue perform_binary_opration(Binary* binary_node);
     RuntimeValue perform_unary_operation(Unary *unary_node);
-
+    void push_error(std::string message, Token &token);
 
 public:
     std::string evaluate();

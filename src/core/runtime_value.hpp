@@ -12,3 +12,8 @@ bool is_truthy(RuntimeValue &value);
 bool is_true(RuntimeValue &value);
 bool is_false(RuntimeValue &value);
 bool is_bool(RuntimeValue &value);
+
+double get_number(RuntimeValue &value);
+std::string get_string(RuntimeValue &value);
+bool get_bool(RuntimeValue &value);
+nullptr_t get_nil(RuntimeValue &value);

@@ -13,17 +13,21 @@ std::string Evaluator::evaluate() {
     } else if (is_false(result)) {
         return "false";
     } else if (is_number(result)) {
-        return normalize_number_literal(std::get<double>(result));
+        return normalize_number_literal(get_number(result));
     } else if (is_nil(result)) {
         return "nil";
     } else if (is_string(result)) {
-        return std::get<std::string>(result);
+        return get_string(result);
     }
     return "";
 }
 
 bool check_invalid_values(RuntimeValue &v1, RuntimeValue &v2) {
     return is_string(v1) || is_string(v2) || is_bool(v2) || is_bool(v1) || is_nil(v1) || is_nil(v2);
+}
+
+void Evaluator::push_error(std::string message, Token &token) {
+    errors.push_back(token.construct_err_message(message));
 }
 
 RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
@@ -33,75 +37,75 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
     switch (binary_node->operation.type) {
     case TokenType::STAR: {
         if (check_invalid_values(left_val, right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("Multiplication operand can't be string"));
+            push_error("Multiplication operand can't be string", binary_node->operation);
             return nullptr;
         }
-        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        double left = get_number(left_val), right = get_number(right_val);
         return left * right;
     }
     case TokenType::SLASH: {
         if (check_invalid_values(left_val, right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("Division operand can't be string "));
+            push_error("Division operand can't be string", binary_node->operation);
             return nullptr;
         }
-        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        double left = get_number(left_val), right = get_number(right_val);
         if ((int)right == 0) {
-            errors.push_back(binary_node->operation.construct_err_message("Division can't be performed by 0"));
+            push_error("Division can't be performed by 0", binary_node->operation);
             return nullptr;
         }
         return left / right;
     }
     case TokenType::MINUS: {
         if (check_invalid_values(left_val, right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("Subtraction operand can't be string"));
+            push_error("Subtraction operand can't be string", binary_node->operation);
             return nullptr;
         }
-        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        double left = get_number(left_val), right = get_number(right_val);
         return left - right;
     }
     case TokenType::PLUS: {
         // string concatenation
         if (is_string(left_val) && is_string(right_val)) {
-            return std::get<std::string>(left_val) + std::get<std::string>(right_val);
+            return get_string(left_val) + get_string(right_val);
         }
         if (check_invalid_values(left_val, right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("Addition operand should be number"));
+            push_error("Addition operand should be number", binary_node->operation);
             return nullptr;
         }
 
-        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        double left = get_number(left_val), right = get_number(right_val);
         return left + right;
     }
     case TokenType::LESS: {
         if (check_invalid_values(left_val, right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("Operands must be a number"));
+            push_error("Operands must be a number", binary_node->operation);
             return nullptr;
         }
-        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        double left = get_number(left_val), right = get_number(right_val);
         return left < right;
     }
     case TokenType::LESS_EQUAL: {
         if (check_invalid_values(left_val, right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("Operands must be a number"));
+            push_error("Operands must be a number", binary_node->operation);
             return nullptr;
         }
-        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        double left = get_number(left_val), right = get_number(right_val);
         return left <= right;
     }
     case TokenType::GREATER: {
         if (check_invalid_values(left_val, right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("Operands must be a number"));
+            push_error("Operands must be a number", binary_node->operation);
             return nullptr;
         }
-        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        double left = get_number(left_val), right = get_number(right_val);
         return left > right;
     }
     case TokenType::GREATER_EQUAL: {
         if (check_invalid_values(left_val, right_val)) {
-            errors.push_back(binary_node->operation.construct_err_message("Operands must be a number"));
+            push_error("Operands must be a number", binary_node->operation);
             return nullptr;
         }
-        double left = std::get<double>(left_val), right = std::get<double>(right_val);
+        double left = get_number(left_val), right = get_number(right_val);
         return left >= right;
     }
     case TokenType::EQUAL_EQUAL: {
@@ -111,8 +115,9 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
         return left_val != right_val;
     }
     }
-    errors.push_back(
-        binary_node->operation.construct_err_message("Unexpected operation " + binary_node->operation.lexeme));
+    push_error("Operands must be a number", binary_node->operation);
+
+    errors.push_back("Unexpected operation " + binary_node->operation.lexeme);
     return nullptr;
 }
 
@@ -122,26 +127,24 @@ RuntimeValue Evaluator::perform_unary_operation(Unary *unary_node) {
     switch (unary_node->token.type) {
     case TokenType::BANG: {
         if (is_number(val))
-            return !std::get<double>(val);
+            return !get_number(val);
         if (is_false(val) || is_true(val))
-            return !std::get<bool>(val);
+            return !get_bool(val);
         if (is_nil(val))
             return true;
 
-        errors.push_back("[line " + std::to_string(unary_node->token.line) +
-                         "] Expected operands 'true', 'false' or 'nil'");
+        push_error("Expected operands 'true', 'false' or 'nil'", unary_node->token);
         return nullptr;
     }
     case TokenType::MINUS:
         if (is_number(val))
-            return -std::get<double>(val);
+            return -get_number(val);
 
-        errors.push_back("[line " + std::to_string(unary_node->token.line) + "] Expected operand 'number'");
+        push_error("Expected operand of type 'number'", unary_node->token);
         return nullptr;
     }
 
-    errors.push_back("[line " + std::to_string(unary_node->token.line) +
-                     "] Unknown operand. Expected 'number', 'nil', 'true' or 'false'");
+    push_error("Unknown operand. Expected 'number', 'nil', 'true' or 'false'", unary_node->token);
     return nullptr;
 }
 
@@ -154,13 +157,10 @@ RuntimeValue Evaluator::evaluate(ASTNode *node) {
         return static_cast<Literal *>(node)->token.get_runtime_value();
     case NodeType::GROUP:
         return evaluate(static_cast<Group *>(node)->ast_node);
-    case NodeType::BINARY: {
-        Binary *binary_node = static_cast<Binary *>(node);
-        return perform_binary_opration(binary_node);
-    }
+    case NodeType::BINARY:
+        return perform_binary_opration(static_cast<Binary *>(node));
     case NodeType::UNARY: {
-        Unary *unary_node = static_cast<Unary *>(node);
-        return perform_unary_operation(unary_node);
+        return perform_unary_operation(static_cast<Unary *>(node));
     }
     };
     return nullptr;

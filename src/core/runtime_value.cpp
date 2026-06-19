@@ -35,3 +35,19 @@ bool is_false(RuntimeValue &value) {
         return !std::get<bool>(value);
     return false;
 }
+
+bool get_bool(RuntimeValue &value) {
+    return std::get<bool>(value);
+}
+
+nullptr_t get_nil(RuntimeValue &value) {
+    return std::get<nullptr_t>(value);
+}
+
+std::string get_string(RuntimeValue &value) {
+    return std::get<std::string>(value);
+}
+
+double get_number(RuntimeValue &value) {
+    return std::get<double>(value);
+}
