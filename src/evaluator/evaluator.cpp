@@ -50,10 +50,17 @@ RuntimeValue Evaluator::perform_binary_opration(Binary *binary_node) {
 
         }
         case TokenType::MINUS: {
-            
+            if (is_string(left_val) || is_string(right_val)) {
+                // error
+                return nullptr;
+            }
+            double left = std::get<double>(left_val), right = std::get<double>(right_val);
+            return left - right;
         }
         case TokenType::PLUS: {
-
+            // string concatenation
+            double left = std::get<double>(left_val), right = std::get<double>(right_val);
+            return left + right;
         }
     }
     return nullptr;
