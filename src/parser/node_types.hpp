@@ -1,3 +1,12 @@
 #pragma once
 
-enum NodeType { LITERAL, BINARY, GROUP, UNARY, PRINT_STMT, EXPR_STMT };
+enum NodeType { 
+    LITERAL, 
+    BINARY, 
+    GROUP, 
+    UNARY, 
+    VARIABLE,
+    PRINT_STMT, 
+    EXPR_STMT,
+    VARIABLE_STMT
+};

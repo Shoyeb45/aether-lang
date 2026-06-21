@@ -41,6 +41,8 @@ enum class TokenType {
     IDENTIFIER,
     RESERVED_WORD,
 
+    VAR,
+    
     // Error token
     UNKNOWN_CHARACTER,
     STRING_UNTERMINATED,

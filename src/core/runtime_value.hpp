@@ -15,5 +15,6 @@ bool is_bool(RuntimeValue &value);
 
 double get_number(RuntimeValue &value);
 std::string get_string(RuntimeValue &value);
+std::string get_runtime_to_str(RuntimeValue &value);
 bool get_bool(RuntimeValue &value);
 nullptr_t get_nil(RuntimeValue &value);

@@ -1,6 +1,7 @@
 #include "runtime_value.hpp"
-#include <string>
+#include "utils.hpp"
 #include <iostream>
+#include <string>
 
 bool is_number(RuntimeValue &value) {
     return std::holds_alternative<double>(value);
@@ -25,7 +26,7 @@ bool is_nil(RuntimeValue &value) {
     return std::holds_alternative<nullptr_t>(value);
 }
 bool is_true(RuntimeValue &value) {
-    if (std::holds_alternative<bool>(value)) 
+    if (std::holds_alternative<bool>(value))
         return std::get<bool>(value);
     return false;
 }
@@ -50,4 +51,19 @@ std::string get_string(RuntimeValue &value) {
 
 double get_number(RuntimeValue &value) {
     return std::get<double>(value);
+}
+
+std::string get_runtime_to_str(RuntimeValue &value) {
+    if (is_true(value)) {
+        return "true";
+    } else if (is_false(value)) {
+        return "false";
+    } else if (is_number(value)) {
+        return normalize_number_literal(get_number(value));
+    } else if (is_nil(value)) {
+        return "nil";
+    } else if (is_string(value)) {
+        return get_string(value);
+    }
+    return "";
 }

@@ -1,2 +1,1 @@
-print "20" + "world";
-print false * (54 + 89);
+(foo

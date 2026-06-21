@@ -4,6 +4,7 @@
 std::string Executor::executeExprStmt(ExprStmt *stmt) {
     evaluator->set_root(stmt->expr);
     std::string result = evaluator->evaluate();
+
     if (evaluator->errors.size() > 0) {
         evaluator->report_error();
         std::exit(70);
@@ -11,9 +12,16 @@ std::string Executor::executeExprStmt(ExprStmt *stmt) {
     return "";
 }
 
+std::string Executor::executeVarStmt(VariableStmt *varStmt) {
+    RuntimeValue value = evaluator->evaluate(varStmt->expr);
+    evaluator->global->set(varStmt->identifier.lexeme, value);   
+    return "";
+}
+
 std::string Executor::executePrntStmt(PrintStmt *prntStmt) {
     evaluator->set_root(prntStmt->expr);
     std::string result = evaluator->evaluate();
+    
     if (evaluator->errors.size() > 0) {
         evaluator->report_error();
         std::exit(70);
@@ -29,12 +37,16 @@ std::string Executor::executeStmt(Stmt *stmt) {
     case NodeType::PRINT_STMT: {
         return executePrntStmt(static_cast<PrintStmt *>(stmt));
     }
+    case NodeType::VARIABLE_STMT: {
+        return executeVarStmt(static_cast<VariableStmt *>(stmt));
+    }
     }
     return "";
 }
 
 void Executor::execute() {
     std::string output = "";
+
     for (Stmt* stmt : statements) {
         output = executeStmt(stmt);
         std::cout << (output != "" ? output + "\n": "");

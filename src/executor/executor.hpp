@@ -11,7 +11,8 @@ struct Executor {
     std::string executePrntStmt(PrintStmt *prntStmt);
     std::string executeExprStmt(ExprStmt *exprStmt);
     std::string executeStmt(Stmt *stmt);
-      
+    std::string executeVarStmt(VariableStmt *varStmt);
+
   public:
     Executor(std::vector<Stmt *> &statements): statements(statements) {}
 

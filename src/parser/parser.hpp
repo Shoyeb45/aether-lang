@@ -24,6 +24,8 @@ struct Parser {
     Token advance();
     /// check if it's last token
     bool is_at_end();
+    /// Consume the type if present and advance
+    Token consume(TokenType type, std::string message);
 
     bool match(TokenType type);
     bool check(TokenType type);
@@ -34,9 +36,10 @@ struct Parser {
     Expr *unary();
     Expr *comparison();
     Expr *equality();
-    Stmt *expressionStmt();
+    Stmt *expression_stmt();
     Stmt *statement();
-    Stmt *prntStmt();
+    Stmt *prnt_stmt();
+    Stmt *var_stmt();
 
   public:
     Parser(std::vector<Token> &tokens) {

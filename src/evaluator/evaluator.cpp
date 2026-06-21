@@ -1,27 +1,26 @@
 #include "evaluator.hpp"
 #include "../core/runtime_value.hpp"
 #include "../core/utils.hpp"
-#include <string>
 #include <iostream>
-
+#include <string>
 
 std::string Evaluator::evaluate() {
     if (!root)
         return "";
     RuntimeValue result = this->evaluate(root);
 
-    if (is_true(result)) {
-        return "true";
-    } else if (is_false(result)) {
-        return "false";
-    } else if (is_number(result)) {
-        return normalize_number_literal(get_number(result));
-    } else if (is_nil(result)) {
-        return "nil";
-    } else if (is_string(result)) {
-        return get_string(result);
-    }
-    return "";
+    // if (is_true(result)) {
+    //     return "true";
+    // } else if (is_false(result)) {
+    //     return "false";
+    // } else if (is_number(result)) {
+    //     return normalize_number_literal(get_number(result));
+    // } else if (is_nil(result)) {
+    //     return "nil";
+    // } else if (is_string(result)) {
+    //     return get_string(result);
+    // }
+    return get_runtime_to_str(result);
 }
 
 bool check_invalid_values(RuntimeValue &v1, RuntimeValue &v2) {
@@ -163,6 +162,10 @@ RuntimeValue Evaluator::evaluate(Expr *node) {
         return perform_binary_opration(static_cast<Binary *>(node));
     case NodeType::UNARY: {
         return perform_unary_operation(static_cast<Unary *>(node));
+    }
+    case NodeType::VARIABLE: {
+        Variable *var = static_cast<Variable *>(node);
+        return global->get(var->identifier.lexeme);
     }
     };
     return nullptr;

@@ -82,3 +82,16 @@ struct Unary : Expr {
         return visulz + ")";
     }
 };
+
+struct Variable: Expr {
+    Token identifier;
+    Variable(Token identifier) {
+        this->identifier = identifier;
+        type = NodeType::VARIABLE;
+    }
+
+    std::string visualize() override {
+        std::string visz = " variable ";
+        return visz;
+    }
+};

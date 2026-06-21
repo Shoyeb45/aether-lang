@@ -37,6 +37,13 @@ bool Parser::match(TokenType type) {
     return false;
 }
 
+Token Parser::consume(TokenType type, std::string message) {
+    if (check(type))
+        return advance();
+    errors.push_back(message);
+    return Token{};
+}
+
 Expr *Parser::expression() {
     return equality();
 }
@@ -60,11 +67,14 @@ Expr *Parser::primary() {
         Expr *grp_node = new Group(expr);
 
         if (!match(TokenType::RIGHT_PAREN)) {
-            std::cerr << "Expected ')'\n";
+            errors.push_back("Expected ')'");
             return nullptr;
         }
-        // advance();
         return grp_node;
+    }
+
+    if (check(TokenType::IDENTIFIER)) {
+        return new Variable(advance());
     }
 
     errors.push_back("[line " + std::to_string(peek().line) + "] Error at ')': Expect expression.");
@@ -137,8 +147,8 @@ Expr *Parser::term() {
 
 void Parser::visualize() {
     if (!root) {
-        for (Stmt* stmt : statements) {
-            std::cout << trim(stmt->visualize()) << "\n"; 
+        for (Stmt *stmt : statements) {
+            std::cout << trim(stmt->visualize()) << "\n";
         }
         return;
     }
@@ -161,30 +171,42 @@ std::vector<Stmt *> Parser::parse_stmt() {
     return statements;
 }
 
-Stmt* Parser::expressionStmt() {
-    Expr* expr = expression();
+Stmt *Parser::var_stmt() {
+    Token identifier = consume(TokenType::IDENTIFIER, "Expected name of the variable");
+    consume(TokenType::EQUAL, "Expected assignment operator '='");
+
+    Expr *expr = expression();
+    consume(TokenType::SEMICOLON, "Expected ;");
+    return new VariableStmt(expr, identifier);
+}
+
+Stmt *Parser::expression_stmt() {
+    Expr *expr = expression();
     if (match(TokenType::SEMICOLON)) {
         return new ExprStmt(expr);
     }
-    std::cout << peek() << "\n";
+
     // error
     errors.push_back("Expected ;");
     return nullptr;
 }
 
-Stmt* Parser::prntStmt() {
+Stmt *Parser::prnt_stmt() {
     Expr *expr = expression();
     if (match(TokenType::SEMICOLON)) {
         return new PrintStmt(expr);
     }
-    std::cout << peek() << "\n";
     errors.push_back("Expected ;");
     return nullptr;
 }
 
-Stmt* Parser::statement() {
+Stmt *Parser::statement() {
     if (match(TokenType::PRINT)) {
-        return prntStmt();
+        return prnt_stmt();
     }
-    return expressionStmt();
+    if (match(TokenType::VAR)) {
+        return var_stmt();
+    }
+
+    return expression_stmt();
 }
