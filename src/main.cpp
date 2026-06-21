@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Usage: ./run tokenize <filename>" << std::endl;
         std::cerr << "Usage: ./run parse <filename>" << std::endl;
         std::cerr << "Usage: ./run evaluate <filename>" << std::endl;
+        std::cerr << "Usage: ./run run <filename>" << std::endl;
         return 1;
     }
 

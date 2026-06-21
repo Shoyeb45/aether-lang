@@ -63,6 +63,7 @@ bool is_start_identifier(char ch) {
     return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch == '_';
 }
 
+
 std::pair<TokenType, int> identify_token(int idx, const std::string &file_content) {
     TokenType type = TokenType::UNKNOWN_CHARACTER;
     int add = 1;
@@ -115,8 +116,8 @@ std::pair<TokenType, int> identify_token(int idx, const std::string &file_conten
             type = TokenType::STRING_UNTERMINATED;
             add = file_content.size();
         } else {
-            add = j - idx + 1;
             type = TokenType::STRING;
+            add = j - idx + 1;
         }
     }
 
@@ -138,11 +139,12 @@ std::vector<Token> LexicalScanner::scan_file(const std::vector<std::string> &fil
     std::vector<Token> tokens;
     std::vector<std::string> lexical_errors;
 
+    int prev = 0;
     for (int idx = 0; idx < file_contents.size(); idx++) {
         int line = idx + 1;
         const std::string &file_content = file_contents[idx];
 
-        for (int i = 0; i < file_content.size();) {
+        for (int i = 0 + prev; i < file_content.size();) {
             if (is_whitespace_char(file_content[i])) {
                 i++;
                 continue;
@@ -153,14 +155,42 @@ std::vector<Token> LexicalScanner::scan_file(const std::vector<std::string> &fil
             }
 
             auto [token_type, add] = identify_token(i, file_content);
-            const Token token = Token{file_content.substr(i, add), token_type, line};
-            i += add;
+            
+            std::string original = file_content.substr(i, add);
 
-            // std::string lexical_err = token.to_lexical_error();
-            // if (lexical_err != "") {
-            //     lexical_errors.push_back(lexical_err);
-            //     continue;
-            // }
+            std::string str_literal = "";
+            
+            // if we got string terminated then we may have the other " in next line
+            // so we should try to find that
+            if (token_type == TokenType::STRING_UNTERMINATED) {
+                for (int j = idx + 1; j < file_contents.size(); j++){
+                    const std::string &str = file_contents[j];
+                    int k = str.find("\"", 0);
+
+                    if (k == std::string::npos) {
+                        str_literal += str + "\n";
+                    } else {
+                        token_type = TokenType::STRING;
+                        str_literal += str.substr(0, k) + "\n";
+                        idx = j - 1;
+                        prev = k + 1;
+                        break;
+                    }
+                }
+            }
+            // std::cout << "str_literal " << str_literal << "\n";
+
+            original += (str_literal != "" ? "\n" + str_literal : "");
+            const Token token = Token{original, token_type, line};
+
+            if (str_literal != "") {
+                tokens.push_back(token);
+                break;
+            } else {
+                prev = 0;
+            }
+
+            i += add;
             tokens.push_back(token);
         }
     }
