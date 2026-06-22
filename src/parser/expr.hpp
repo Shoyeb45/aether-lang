@@ -91,7 +91,7 @@ struct Variable: Expr {
     }
 
     std::string visualize() override {
-        std::string visz = " variable ";
+        std::string visz = " variable: " + identifier.lexeme;
         return visz;
     }
 };

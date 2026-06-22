@@ -180,6 +180,10 @@ Stmt *Parser::var_stmt() {
     } else {
         expr = new Literal(Token{"nil", TokenType::NIL, -1});
     }
+
+    if (expr == nullptr) {
+        errors.push_back(previous().construct_err_message("Undeclared variable: " + identifier.lexeme));
+    }
     
     consume(TokenType::SEMICOLON, previous().construct_err_message("Expected ;"));
     return new VariableStmt(expr, identifier);
