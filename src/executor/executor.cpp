@@ -30,7 +30,8 @@ std::string Executor::executePrntStmt(PrintStmt *prntStmt) {
         evaluator->report_error();
         std::exit(70);
     }
-    return result;
+    std::cout << result << "\n";
+    return "";
 }
 
 std::string Executor::executeStmt(Stmt *stmt) {
@@ -44,6 +45,17 @@ std::string Executor::executeStmt(Stmt *stmt) {
     case NodeType::VARIABLE_STMT: {
         return executeVarStmt(static_cast<VariableStmt *>(stmt));
     }
+    case NodeType::BLOCK_STMT: {
+        BlockStmt *block_stmt = static_cast<BlockStmt*>(stmt);
+        std::string res = "";
+        std::string intermediate_res = "";
+
+        for (Stmt *stmt: block_stmt->stmts) {
+            intermediate_res = executeStmt(stmt);
+            if (intermediate_res != "") res += intermediate_res;
+        }
+        return res;
+    }
     }
     return "";
 }
@@ -52,7 +64,7 @@ void Executor::execute() {
     std::string output = "";
 
     for (Stmt *stmt : statements) {
-        output = executeStmt(stmt);
-        std::cout << (output != "" ? output + "\n" : "");
+        executeStmt(stmt);
+        // std::cout << (output != "" ? output + "\n" : "");
     }
 }

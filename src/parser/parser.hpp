@@ -41,7 +41,7 @@ struct Parser {
     Stmt *statement();
     Stmt *prnt_stmt();
     Stmt *var_stmt();
-
+    Stmt *block_stmt();
   public:
     Parser(std::vector<Token> &tokens) {
         this->tokens = tokens;

@@ -191,7 +191,8 @@ std::vector<Stmt *> Parser::parse_stmt() {
 }
 
 Stmt *Parser::var_stmt() {
-    Token identifier = consume(TokenType::IDENTIFIER, "Expected name of the variable");
+    Token identifier =
+        consume(TokenType::IDENTIFIER, previous().construct_err_message("Expected name of the variable"));
 
     Expr *expr;
     if (match(TokenType::EQUAL)) {
@@ -234,12 +235,30 @@ Stmt *Parser::prnt_stmt() {
     return nullptr;
 }
 
+Stmt *Parser::block_stmt() {
+    std::vector<Stmt *> stmts;
+    
+    while (!check(TokenType::RIGHT_BRACE) && !check(TokenType::END_OF_FILE)) {
+        stmts.push_back(statement());
+    }
+
+    if (match(TokenType::RIGHT_BRACE)) 
+        return new BlockStmt(stmts);
+
+    errors.push_back(previous().construct_err_message("Expected '}'"));
+    return nullptr;
+}
+
 Stmt *Parser::statement() {
     if (match(TokenType::PRINT)) {
         return prnt_stmt();
     }
     if (match(TokenType::VAR) || check(TokenType::IDENTIFIER)) {
         return var_stmt();
+    }
+
+    if (match(TokenType::LEFT_BRACE)) {
+        return block_stmt();
     }
 
     return expression_stmt();

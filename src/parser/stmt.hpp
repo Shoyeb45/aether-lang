@@ -61,3 +61,19 @@ struct VariableStmt : Stmt {
         return visz;
     }
 };
+
+struct BlockStmt : Stmt {
+  public:
+    std::vector<Stmt *> stmts;
+    BlockStmt(std::vector<Stmt *> &stmts) {
+        this->stmts = stmts;
+        type = NodeType::BLOCK_STMT;
+    }
+
+    std::string visualize() override {
+        std::string visz = " {block ";
+        for (auto &stmt: stmts) 
+            if (stmt) visz += stmt->visualize();
+        return visz + "}";
+    }
+};

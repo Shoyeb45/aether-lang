@@ -6,8 +6,9 @@ enum NodeType {
     GROUP, 
     UNARY, 
     VARIABLE,
+    ASSIGN,
     PRINT_STMT, 
     EXPR_STMT,
     VARIABLE_STMT,
-    ASSIGN,
+    BLOCK_STMT,
 };
