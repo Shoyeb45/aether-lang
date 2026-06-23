@@ -14,6 +14,7 @@ struct Executor {
     void execute_var_stmt(VariableStmt *var_stmt);
     void execute_block_stmt(BlockStmt *block_stmt, EnvironmentTable *environment);
     void execute_if_stmt(IfStmt *if_stmt);
+    void execute_while_stmt(WhileStmt *while_stmt);
     
     // utility methods
     RuntimeValue evaluate_expr(Expr *expr);

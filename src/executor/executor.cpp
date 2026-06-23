@@ -67,8 +67,16 @@ void Executor::execute_if_stmt(IfStmt *if_stmt) {
     }
 }
 
+void Executor::execute_while_stmt(WhileStmt *while_stmt) {
+    RuntimeValue evaluated_expr;
+    while (is_truthy(evaluated_expr = evaluate_expr(while_stmt->condition))) {
+        execute_stmt(while_stmt->body);
+    }
+}
+
 void Executor::execute_stmt(Stmt *stmt) {
-    if (!stmt) return;
+    if (!stmt)
+        return;
 
     switch (stmt->type) {
     case NodeType::EXPR_STMT: {
@@ -89,6 +97,11 @@ void Executor::execute_stmt(Stmt *stmt) {
     }
     case NodeType::IF_STMT: {
         execute_if_stmt(static_cast<IfStmt *>(stmt));
+        break;
+    }
+    case NodeType::WHILE_STMT: {
+        execute_while_stmt(static_cast<WhileStmt *>(stmt));
+        break;
     }
     }
 }

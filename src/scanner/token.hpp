@@ -42,7 +42,9 @@ enum class TokenType {
     ELSE,
     AND,
     OR,
-
+    WHILE,
+    FOR,
+    
     PRINT,
     IDENTIFIER,
     RESERVED_WORD,

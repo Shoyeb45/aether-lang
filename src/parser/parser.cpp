@@ -304,6 +304,24 @@ Stmt *Parser::if_stmt() {
     return new IfStmt(expr, then_branch, else_branch);
 }
 
+Stmt *Parser::while_stmt() {
+    // in while also we'll maintian both syntax
+    // while (cond) or while cond <- both valid
+
+    if (match(TokenType::LEFT_PAREN)) {
+        Expr *condition = expression();
+
+        consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expected ')'"));
+        Stmt *body = statement();
+
+        return new WhileStmt(condition, body);
+    }
+    
+    Expr *condition = expression();
+    Stmt *body = statement();
+    return new WhileStmt(condition, body);
+}
+
 Stmt *Parser::statement() {
     if (match(TokenType::PRINT)) {
         return prnt_stmt();
@@ -316,6 +334,9 @@ Stmt *Parser::statement() {
     }
     if (match(TokenType::IF)) {
         return if_stmt();
+    }
+    if (match(TokenType::WHILE)) {
+        return while_stmt();
     }
 
     return expression_stmt();

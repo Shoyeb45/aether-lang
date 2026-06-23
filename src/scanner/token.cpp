@@ -95,6 +95,8 @@ std::string Token::token_type_to_string() const {
     case TokenType::ELSE:
     case TokenType::AND:
     case TokenType::OR:
+    case TokenType::WHILE:
+    case TokenType::FOR:
         return reserved_words.at(original_token);
     case TokenType::UNKNOWN_CHARACTER:
     default:
@@ -157,6 +159,8 @@ std::string Token::token_type_to_lexeme() const {
     case TokenType::ELSE:
     case TokenType::AND:
     case TokenType::OR:
+    case TokenType::WHILE:
+    case TokenType::FOR:
         return original_token;
     default:
         return "";

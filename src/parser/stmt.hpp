@@ -97,3 +97,21 @@ struct IfStmt : Stmt {
         return visz + ")";
     }
 };
+
+struct WhileStmt : Stmt {
+  Expr *condition;
+  Stmt *body;
+
+  WhileStmt(Expr *condition, Stmt *body) {
+    type = NodeType::WHILE_STMT;
+    this->condition = condition;
+    this->body = body;
+  }
+
+  std::string visualize() override {
+    std::string visz = "(while ";
+    if (condition) visz += " condition -> (" + condition->visualize() + ")";
+    if (body) visz += " body -> (" + body->visualize() + ")";
+    return visz + ")";
+  }
+};

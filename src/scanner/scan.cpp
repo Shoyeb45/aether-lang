@@ -100,6 +100,12 @@ std::pair<TokenType, int> identify_token(int idx, const std::string &file_conten
                 type = TokenType::OR;
             } else if (word == "and") {
                 type = TokenType::AND;
+            } else if (word == "if") {
+                type = TokenType::IF;
+            } else if (word == "for") {
+                type = TokenType::FOR;
+            } else if (word == "while") {
+                type = TokenType::WHILE;
             }
         } else {
             type = TokenType::IDENTIFIER;
