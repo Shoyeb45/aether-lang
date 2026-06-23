@@ -1,3 +1,3 @@
-// This should print the string if the condition
-// evaluates to True
-if (false) print "foo";
+if (false) {
+  print "block body";
+}

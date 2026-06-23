@@ -257,11 +257,12 @@ Stmt *Parser::if_stmt() {
         consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expected ')"));
 
         Stmt *then_branch = statement();
-        Stmt *else_branch;
-        
+        Stmt *else_branch = nullptr;
+
         if (match(TokenType::ELSE)) {
             else_branch = statement();
         }
+        
         return new IfStmt(expr, then_branch, else_branch);
     }
 

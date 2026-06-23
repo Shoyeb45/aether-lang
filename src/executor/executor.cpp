@@ -13,6 +13,7 @@ void Executor::execute_expr_stmt(ExprStmt *stmt) {
 
 RuntimeValue Executor::evaluate_expr(Expr *expr) {
     RuntimeValue value = evaluator->evaluate(expr);
+
     if (evaluator->errors.size() > 0) {
         evaluator->report_error();
         std::exit(70);
@@ -60,7 +61,7 @@ void Executor::execute_if_stmt(IfStmt *if_stmt) {
     if (is_bool(result) && get_bool(result)) {
         // then execute the then_branch
         execute_stmt(if_stmt->then_branch);
-    } else {
+    } else if (is_bool(result)) {
         // here we can execute else branch
         execute_stmt(if_stmt->else_branch);
     }
