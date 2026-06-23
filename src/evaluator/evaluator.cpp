@@ -138,6 +138,18 @@ RuntimeValue Evaluator::perform_unary_operation(Unary *unary_node) {
     return nullptr;
 }
 
+RuntimeValue Evaluator::perform_logical_operation(Logical *logical_node) {
+    // first evaluate left
+    RuntimeValue left = evaluate(logical_node->left);
+
+    if (logical_node->op.type == TokenType::OR) {
+        if (is_truthy(left)) return left;
+    } else if (!is_truthy(left)) {
+        return left;
+    }
+    return evaluate(logical_node->right);
+}
+
 RuntimeValue Evaluator::evaluate(Expr *node) {
     if (!node)
         return nullptr;
@@ -173,6 +185,9 @@ RuntimeValue Evaluator::evaluate(Expr *node) {
         }
         global->assign(assign_node->identifier, value);
         return value;
+    }
+    case NodeType::LOGICAL: {
+        return perform_logical_operation(static_cast<Logical *>(node));
     }
     };
     return nullptr;

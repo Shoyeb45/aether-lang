@@ -12,12 +12,20 @@ bool is_string(RuntimeValue &value) {
 }
 
 bool is_truthy(RuntimeValue &value) {
-    if (std::holds_alternative<bool>(value)) {
-        return std::get<bool>(value);
-    }
+    if (is_bool(value))
+        return get_bool(value);
+
+    if (is_number(value))
+        return get_number(value) != 0.0;
+
+    if (is_string(value))
+        return !get_string(value).empty();
+
+    if (is_nil(value))
+        return false;
+
     return true;
 }
-
 bool is_bool(RuntimeValue &value) {
     return is_true(value) || is_false(value);
 }

@@ -29,6 +29,7 @@ struct Parser {
 
     bool match(TokenType type);
     bool check(TokenType type);
+
     Expr *expression();
     Expr *term();
     Expr *factor();
@@ -37,13 +38,16 @@ struct Parser {
     Expr *comparison();
     Expr *equality();
     Expr *assignment();
+    Expr *or_expr();
+    Expr *and_expr();
+
     Stmt *expression_stmt();
     Stmt *statement();
     Stmt *prnt_stmt();
     Stmt *var_stmt();
     Stmt *block_stmt();
     Stmt *if_stmt();
-    
+
   public:
     Parser(std::vector<Token> &tokens) {
         this->tokens = tokens;

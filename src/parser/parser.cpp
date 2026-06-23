@@ -119,8 +119,32 @@ Expr *Parser::comparison() {
     return expr;
 }
 
-Expr *Parser::assignment() {
+Expr *Parser::or_expr() {
+    Expr *expr = and_expr();
+    
+    while (match(TokenType::OR)) {
+        Token op = previous();
+        Expr *right = and_expr();
+        expr = new Logical(expr, right, op);
+    }
+
+    return expr;
+}
+
+Expr *Parser::and_expr() {
     Expr *expr = equality();
+    
+    while (match(TokenType::AND)) {
+        Token op = previous();
+        Expr *right = equality();
+        expr = new Logical(expr, right, op);
+    }
+
+    return expr;
+}
+
+Expr *Parser::assignment() {
+    Expr *expr = or_expr();
 
     if (check(TokenType::EQUAL)) {
         Token equals = advance();
@@ -262,7 +286,7 @@ Stmt *Parser::if_stmt() {
         if (match(TokenType::ELSE)) {
             else_branch = statement();
         }
-        
+
         return new IfStmt(expr, then_branch, else_branch);
     }
 

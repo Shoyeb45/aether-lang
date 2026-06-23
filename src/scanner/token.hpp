@@ -40,6 +40,8 @@ enum class TokenType {
     NIL,
     IF,
     ELSE,
+    AND,
+    OR,
 
     PRINT,
     IDENTIFIER,

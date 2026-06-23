@@ -99,7 +99,7 @@ struct Variable : Expr {
 struct Assign : Expr {
     Token identifier;
     Expr *value;
-    
+
     Assign(Token identifier, Expr *value) {
         this->identifier = identifier;
         this->value = value;
@@ -108,5 +108,26 @@ struct Assign : Expr {
 
     std::string visualize() override {
         return "Assign " + identifier.lexeme + " " + (value ? value->visualize() : "");
+    }
+};
+
+struct Logical : Expr {
+    Token op;
+    Expr *right;
+    Expr *left;
+
+    Logical(Expr *left, Expr *right, Token op) {
+        this->op = op;
+        this->left = left;
+        this->right = right;
+        type = NodeType::LOGICAL;
+    };
+
+    std::string visualize() override {
+        std::string visulz = " (" + this->op.lexeme;
+
+        visulz += left ? left->visualize() : "";
+        visulz += right ? right->visualize() : "";
+        return visulz + ")";
     }
 };

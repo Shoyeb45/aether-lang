@@ -58,10 +58,10 @@ void Executor::execute_block_stmt(BlockStmt *block_stmt, EnvironmentTable *envir
 void Executor::execute_if_stmt(IfStmt *if_stmt) {
     RuntimeValue result = evaluate_expr(if_stmt->expr);
 
-    if (is_bool(result) && get_bool(result)) {
+    if (is_truthy(result)) {
         // then execute the then_branch
         execute_stmt(if_stmt->then_branch);
-    } else if (is_bool(result)) {
+    } else {
         // here we can execute else branch
         execute_stmt(if_stmt->else_branch);
     }
