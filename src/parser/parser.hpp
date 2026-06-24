@@ -50,6 +50,8 @@ struct Parser {
     Stmt *while_stmt();
     Stmt *for_stmt();
 
+    void uninitalize_var_error(Stmt *stmt);
+
   public:
     Parser(std::vector<Token> &tokens) {
         this->tokens = tokens;

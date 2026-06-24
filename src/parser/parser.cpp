@@ -121,7 +121,7 @@ Expr *Parser::comparison() {
 
 Expr *Parser::or_expr() {
     Expr *expr = and_expr();
-    
+
     while (match(TokenType::OR)) {
         Token op = previous();
         Expr *right = and_expr();
@@ -133,7 +133,7 @@ Expr *Parser::or_expr() {
 
 Expr *Parser::and_expr() {
     Expr *expr = equality();
-    
+
     while (match(TokenType::AND)) {
         Token op = previous();
         Expr *right = equality();
@@ -209,6 +209,7 @@ void Parser::report_error() {
 
 std::vector<Stmt *> Parser::parse_stmt() {
     while (!is_at_end()) {
+        // std::cout << peek() << "\n";
         statements.push_back(statement());
     }
     return statements;
@@ -261,12 +262,12 @@ Stmt *Parser::prnt_stmt() {
 
 Stmt *Parser::block_stmt() {
     std::vector<Stmt *> stmts;
-    
+
     while (!check(TokenType::RIGHT_BRACE) && !is_at_end()) {
         stmts.push_back(statement());
     }
 
-    if (match(TokenType::RIGHT_BRACE)) 
+    if (match(TokenType::RIGHT_BRACE))
         return new BlockStmt(stmts);
 
     errors.push_back(previous().construct_err_message("Expected '}'"));
@@ -277,14 +278,16 @@ Stmt *Parser::if_stmt() {
     // we'll support both format with paren and without it also
     if (match(TokenType::LEFT_PAREN)) {
         // with paren
-        Expr* expr = expression();
+        Expr *expr = expression();
         consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expected ')"));
 
         Stmt *then_branch = statement();
+        uninitalize_var_error(then_branch);
         Stmt *else_branch = nullptr;
 
         if (match(TokenType::ELSE)) {
             else_branch = statement();
+            uninitalize_var_error(else_branch);
         }
 
         return new IfStmt(expr, then_branch, else_branch);
@@ -295,10 +298,12 @@ Stmt *Parser::if_stmt() {
 
     Expr *expr = expression();
     Stmt *then_branch = statement();
+    uninitalize_var_error(then_branch);
     Stmt *else_branch = nullptr;
 
     if (match(TokenType::ELSE)) {
         else_branch = statement();
+        uninitalize_var_error(else_branch);
     }
 
     return new IfStmt(expr, then_branch, else_branch);
@@ -316,10 +321,25 @@ Stmt *Parser::while_stmt() {
 
         return new WhileStmt(condition, body);
     }
-    
+
     Expr *condition = expression();
     Stmt *body = statement();
     return new WhileStmt(condition, body);
+}
+
+void Parser::uninitalize_var_error(Stmt *stmt) {
+    if (stmt && stmt->type == NodeType::VARIABLE_STMT) {
+        VariableStmt *var = static_cast<VariableStmt *>(stmt);
+
+        if (var && var->expr && var->expr->type == NodeType::LITERAL) {
+            Literal *literal = static_cast<Literal *>(var->expr);
+
+            // we should not assign any uninitialize variables
+            if (literal && literal->token.type == TokenType::NIL && literal->token.line == -1) {
+                errors.push_back(previous().construct_err_message("Error in var; Expected expression."));
+            }
+        }
+    }
 }
 
 // for (init; condi; update) { .. body .. }
@@ -335,33 +355,53 @@ Stmt *Parser::for_stmt() {
     else if (match(TokenType::VAR)) {
         initializer = var_stmt();
     }
-    // initializer without var 
+    // initializer without var
     else {
         initializer = expression_stmt();
+        // std::cout << initializer << "\n";
+        if (!initializer) {
+            errors.push_back(previous().construct_err_message("Error: Expected expression at {"));
+            advance(); // {
+            advance(); // }
+            advance(); // ;
+
+        }
     }
 
     Expr *condition = nullptr;
     if (!check(TokenType::SEMICOLON)) {
         condition = expression();
+        if (!condition) {
+            errors.push_back(previous().construct_err_message("Error: Expected expression at {"));
+            advance();
+            advance();
+        }
     }
     consume(TokenType::SEMICOLON, previous().construct_err_message("Expected ';', after for loop condition"));
-    
+
     Expr *update = nullptr;
     if (!check(TokenType::RIGHT_PAREN)) {
         update = expression();
+        if (!update) {
+            errors.push_back(previous().construct_err_message("Error: Expected expression at {"));
+            advance();
+            advance();
+        }
     }
     consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expected ')' after for clauses."));
 
     Stmt *body = statement();
+    uninitalize_var_error(body);
 
     // we'll merge the update part in the body itself, because it's the same thing
     if (update) {
-        std::vector<Stmt*> stmts = {body, new ExprStmt(update)};
+        std::vector<Stmt *> stmts = {body, new ExprStmt(update)};
         body = new BlockStmt(stmts);
     }
-    
+
     // if the no condition provided then by default provide true
-    if (!condition) condition = new Literal(Token{"true", TokenType::TRUE, -1});
+    if (!condition)
+        condition = new Literal(Token{"true", TokenType::TRUE, -1});
 
     body = new WhileStmt(condition, body);
 

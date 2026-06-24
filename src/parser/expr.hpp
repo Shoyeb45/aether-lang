@@ -10,6 +10,11 @@ struct Expr {
     virtual ~Expr() = default;
 
     virtual std::string visualize() = 0;
+    
+    friend std::ostream &operator<<(std::ostream &os, Expr *expr) {
+        os << "Expr Node Type -> " << node_type_to_string(expr->type) << "\n";
+        return os;
+    }
 };
 
 // Number, false, true, null, string literals

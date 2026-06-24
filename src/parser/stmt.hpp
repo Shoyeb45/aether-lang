@@ -10,6 +10,11 @@ struct Stmt {
     NodeType type;
     virtual ~Stmt() = default;
     virtual std::string visualize() = 0;
+
+    friend std::ostream &operator<<(std::ostream &os, Stmt *stmt) {
+        os << "Stmt Node Type -> " << node_type_to_string(stmt->type) << "\n";
+        return os;
+    }
 };
 
 struct PrintStmt : Stmt {
