@@ -1,5 +1,6 @@
 #include "executor.hpp"
 #include "../parser/stmt.hpp"
+#include "../core/callable.hpp"
 
 void Executor::execute_expr_stmt(ExprStmt *stmt) {
     evaluator->set_root(stmt->expr);
@@ -74,6 +75,11 @@ void Executor::execute_while_stmt(WhileStmt *while_stmt) {
     }
 }
 
+void Executor::execute_func_stmt(FuncStmt *func_stmt) {
+    CustomFunction custm_func(func_stmt);
+    evaluator->environment->set(func_stmt->name.lexeme, std::make_shared<CustomFunction>(custm_func));
+}
+
 void Executor::execute_stmt(Stmt *stmt) {
     if (!stmt)
         return;
@@ -102,6 +108,9 @@ void Executor::execute_stmt(Stmt *stmt) {
     case NodeType::WHILE_STMT: {
         execute_while_stmt(static_cast<WhileStmt *>(stmt));
         break;
+    }
+    case NodeType::FUNCTION_STMT: {
+        execute_func_stmt(static_cast<FuncStmt *>(stmt));
     }
     }
 }

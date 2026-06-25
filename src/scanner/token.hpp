@@ -44,6 +44,7 @@ enum class TokenType {
     OR,
     WHILE,
     FOR,
+    FUN,
     
     PRINT,
     IDENTIFIER,

@@ -40,7 +40,10 @@ struct Parser {
     Expr *assignment();
     Expr *or_expr();
     Expr *and_expr();
+    Expr *call();
+    Expr *finish_call(Expr *calle);
 
+    std::vector<Stmt*> block();
     Stmt *expression_stmt();
     Stmt *statement();
     Stmt *prnt_stmt();
@@ -49,6 +52,7 @@ struct Parser {
     Stmt *if_stmt();
     Stmt *while_stmt();
     Stmt *for_stmt();
+    Stmt *function_stmt(std::string kind);
 
     void uninitalize_var_error(Stmt *stmt);
 

@@ -1,1 +1,7 @@
-for ({}; a < 2; ) {}
+fun call(a, b) {
+    var x = "Adf";
+    print "Hello";
+    print a;
+}
+
+call("shoyeb",  2 + 4 );

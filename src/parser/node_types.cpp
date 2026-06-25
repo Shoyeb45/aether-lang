@@ -41,6 +41,12 @@ std::string node_type_to_string(NodeType type) {
     case NodeType::EXPR_STMT: {
         return "EXPRESSION STMT";
     }
+    case NodeType::FUNCTION_STMT: {
+        return "FUNCTION STMT";
+    }
+    case NodeType::CALL: {
+        return "CALL EXPR";
+    }
     }
     return "INVALID NODE TYPE";
 }

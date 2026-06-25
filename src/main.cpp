@@ -101,10 +101,10 @@ int main(int argc, char *argv[]) {
             parser->report_error();
             std::exit(65);
         }
-        // parser->visualize();
+        parser->visualize();
 
         Executor *executor = new Executor(stmts);
-        executor->execute();
+        // executor->execute();
     } else {
         std::cerr << "Unknown command: " << command << std::endl;
         return 1;

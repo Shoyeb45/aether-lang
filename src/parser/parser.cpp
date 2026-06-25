@@ -1,6 +1,7 @@
 #include "parser.hpp"
 #include "../core/utils.hpp"
 #include <iostream>
+#include <vector>
 
 Token Parser::peek() {
     return tokens[curr_index];
@@ -81,6 +82,34 @@ Expr *Parser::primary() {
     return nullptr;
 }
 
+Expr *Parser::call() {
+    Expr *expr = primary();
+
+    while (!is_at_end()) {
+        // arg starting
+        if (match(TokenType::LEFT_PAREN)) {
+            expr = finish_call(expr);
+        } else {
+            break;
+        }
+    }
+    return expr;
+}
+
+Expr *Parser::finish_call(Expr *calle) {
+    std::vector<Expr *> arguments;
+    // if we have args: ( arg1, arg2, ... )
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            arguments.push_back(expression());
+        } while (match(TokenType::COMMA));
+    }
+
+    consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expected ')' at the argument ending"));
+
+    return new Call(calle, arguments);
+}
+
 Expr *Parser::factor() {
     Expr *expr = unary();
 
@@ -102,7 +131,7 @@ Expr *Parser::unary() {
         return new Unary(op, right);
     }
 
-    return primary();
+    return call();
 }
 
 Expr *Parser::comparison() {
@@ -209,7 +238,7 @@ void Parser::report_error() {
 
 std::vector<Stmt *> Parser::parse_stmt() {
     while (!is_at_end()) {
-        // std::cout << peek() << "\n";
+        std::cout << peek() << "\n";
         statements.push_back(statement());
     }
     return statements;
@@ -260,12 +289,17 @@ Stmt *Parser::prnt_stmt() {
     return nullptr;
 }
 
-Stmt *Parser::block_stmt() {
+std::vector<Stmt *> Parser::block() {
     std::vector<Stmt *> stmts;
 
     while (!check(TokenType::RIGHT_BRACE) && !is_at_end()) {
         stmts.push_back(statement());
     }
+    return stmts;
+}
+
+Stmt *Parser::block_stmt() {
+    std::vector<Stmt *> stmts = block();
 
     if (match(TokenType::RIGHT_BRACE))
         return new BlockStmt(stmts);
@@ -361,10 +395,9 @@ Stmt *Parser::for_stmt() {
         // std::cout << initializer << "\n";
         if (!initializer) {
             errors.push_back(previous().construct_err_message("Error: Expected expression at {"));
-            advance(); // {
-            advance(); // }
-            advance(); // ;
-
+            advance();  // {
+            advance();  // }
+            advance();  // ;
         }
     }
 
@@ -413,6 +446,36 @@ Stmt *Parser::for_stmt() {
     return body;
 }
 
+Stmt *Parser::function_stmt(std::string kind) {
+    // fun name() {
+    //    ...
+    // }
+    Token identifier = consume(TokenType::IDENTIFIER, previous().construct_err_message("Expected " + kind + " name."));
+
+    // Left paren
+    consume(TokenType::LEFT_PAREN, previous().construct_err_message("Expect '(' after " + kind + " name."));
+
+    std::vector<Token> params;
+    // parse arguments
+    if (!check(TokenType::RIGHT_PAREN)) {
+        // we need to parse parameters now
+
+        do {
+            if (params.size() >= 255)
+                errors.push_back(previous().construct_err_message("Can't have more than 255 parameters."));
+            params.push_back(consume(TokenType::IDENTIFIER, previous().construct_err_message("Expect parameter name")));
+        } while (match(TokenType::COMMA));
+    }
+
+    consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expect ')' after parameters"));
+
+    // Now function body
+    consume(TokenType::LEFT_BRACE, previous().construct_err_message("Expect '{' after " + kind + " parameters."));
+    BlockStmt *body = (BlockStmt*) block_stmt();
+
+    return new FuncStmt(identifier, params, body);
+}
+
 Stmt *Parser::statement() {
     if (match(TokenType::PRINT)) {
         return prnt_stmt();
@@ -431,6 +494,9 @@ Stmt *Parser::statement() {
     }
     if (match(TokenType::FOR)) {
         return for_stmt();
+    }
+    if (match(TokenType::FUN)) {
+        return function_stmt("function");
     }
 
     return expression_stmt();

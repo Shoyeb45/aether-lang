@@ -75,3 +75,11 @@ std::string get_runtime_to_str(RuntimeValue &value) {
     }
     return "";
 }
+
+bool is_callable(RuntimeValue &value) {
+    return std::holds_alternative<Callable *>(value);
+}
+
+Callable* get_callable(RuntimeValue &value) {
+    return std::get<Callable *>(value);
+}

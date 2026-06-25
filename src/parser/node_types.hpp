@@ -10,12 +10,14 @@ enum NodeType {
     VARIABLE,
     LOGICAL,
     ASSIGN,
+    CALL,
     PRINT_STMT,
     EXPR_STMT,
     VARIABLE_STMT,
     BLOCK_STMT,
     IF_STMT,
     WHILE_STMT,
+    FUNCTION_STMT,
 };
 
 std::string node_type_to_string(NodeType type);

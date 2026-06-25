@@ -4,13 +4,14 @@
 #include "node_types.hpp"
 #include <iostream>
 #include <string>
+#include <vector>
 
 struct Expr {
     NodeType type;
     virtual ~Expr() = default;
 
     virtual std::string visualize() = 0;
-    
+
     friend std::ostream &operator<<(std::ostream &os, Expr *expr) {
         os << "Expr Node Type -> " << node_type_to_string(expr->type) << "\n";
         return os;
@@ -134,5 +135,32 @@ struct Logical : Expr {
         visulz += left ? left->visualize() : "";
         visulz += right ? right->visualize() : "";
         return visulz + ")";
+    }
+};
+
+struct Call : Expr {
+  public:
+    Expr *calle;
+    std::vector<Expr *> args;
+
+    Call(Expr *calle, std::vector<Expr *> &args) {
+        this->calle = calle;
+        this->args = args;
+        type = NodeType::CALL;
+    }
+
+    std::string visualize() override {
+        std::string visz = " (fun call ";
+        
+        if (calle) visz += "calle: (" + calle->visualize() + ") ";
+        visz += "(args: [";
+
+        for (int i = 0; i < args.size(); i++) {
+            if (args[i]) {
+                visz += args[i]->visualize() + (i == args.size() - 1 ? "]": ", ");
+            }
+        }
+
+        return visz + ")";
     }
 };
