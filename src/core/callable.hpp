@@ -37,13 +37,13 @@ struct ClockFunction : Callable {
 
 struct CustomFunction : Callable {
     FuncStmt *declaration;
+    EnvironmentTable *closure;
 
-    CustomFunction(FuncStmt *declaration) {
-        this->declaration = declaration;
-    }
+    CustomFunction(FuncStmt *declaration, EnvironmentTable *closure)
+        : declaration(declaration), closure(closure) {}
 
     RuntimeValue call(Interpreter *interpreter, const std::vector<RuntimeValue> &args) {
-        EnvironmentTable *env = new EnvironmentTable(interpreter->global);
+        EnvironmentTable *env = new EnvironmentTable(closure);
 
         if (arity() != args.size()) {
             // error, std::exit(70) ? maybe
@@ -58,7 +58,7 @@ struct CustomFunction : Callable {
         } catch (const ReturnExecption &excp) {
             return excp.value;
         }
-        
+
         return nullptr;
     }
 

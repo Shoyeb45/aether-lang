@@ -100,6 +100,7 @@ void Interpreter::execute_block_stmt(BlockStmt *block_stmt, EnvironmentTable *en
 
     // change the environment
     environment = env;
+
     try {
         for (Stmt *stmt : block_stmt->stmts) {
             execute_stmt(stmt);
@@ -133,7 +134,8 @@ void Interpreter::execute_while_stmt(WhileStmt *while_stmt) {
 }
 
 void Interpreter::execute_func_stmt(FuncStmt *func_stmt) {
-    CustomFunction custm_func(func_stmt);
+    CustomFunction custm_func(func_stmt, environment);
+    
     environment->set(func_stmt->name.lexeme, std::make_shared<CustomFunction>(custm_func));
 }
 
