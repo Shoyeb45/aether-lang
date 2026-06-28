@@ -477,6 +477,16 @@ Stmt *Parser::function_stmt(std::string kind) {
     return new FuncStmt(identifier, params, body);
 }
 
+
+Stmt *Parser::return_stmt() {
+    Expr *expr = nullptr;
+    if (!check(TokenType::SEMICOLON)) 
+        expr = expression();
+
+    consume(TokenType::SEMICOLON, previous().construct_err_message("Expected ';' at end of return statement"));
+    return new ReturnStmt(expr);
+}
+
 Stmt *Parser::statement() {
     if (match(TokenType::PRINT)) {
         return prnt_stmt();
@@ -499,6 +509,9 @@ Stmt *Parser::statement() {
     if (match(TokenType::FUN)) {
         return function_stmt("function");
     }
+    if (match(TokenType::RETURN)) {
+        return return_stmt();
+    }
 
     return expression_stmt();
 }
@@ -517,6 +530,7 @@ void Parser::synchronize() {
         case TokenType::FOR:
         case TokenType::IF:
         case TokenType::WHILE:
+        case TokenType::RETURN:
         case TokenType::PRINT:
             return;
         default:

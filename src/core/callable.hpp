@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../interpreter/interpreter.hpp"
+#include "../exceptions/return_exception.hpp"
 #include "../parser/stmt.hpp"
 #include "runtime_value.hpp"
 #include <chrono>
@@ -44,7 +45,7 @@ struct CustomFunction : Callable {
     RuntimeValue call(Interpreter *interpreter, const std::vector<RuntimeValue> &args) {
         EnvironmentTable *env = new EnvironmentTable(interpreter->global);
 
-        if (declaration->params.size() != args.size()) {
+        if (arity() != args.size()) {
             // error, std::exit(70) ? maybe
             return nullptr;
         }
@@ -52,7 +53,12 @@ struct CustomFunction : Callable {
         for (int i = 0; i < declaration->params.size(); i++) {
             env->set(declaration->params[i].lexeme, args[i]);
         }
-        interpreter->execute_block_stmt(declaration->body, env);
+        try {
+            interpreter->execute_block_stmt(declaration->body, env);
+        } catch (const ReturnExecption &excp) {
+            return excp.value;
+        }
+        
         return nullptr;
     }
 

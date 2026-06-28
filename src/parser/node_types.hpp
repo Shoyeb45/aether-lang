@@ -18,6 +18,7 @@ enum NodeType {
     IF_STMT,
     WHILE_STMT,
     FUNCTION_STMT,
+    RETURN_STMT,
 };
 
 std::string node_type_to_string(NodeType type);

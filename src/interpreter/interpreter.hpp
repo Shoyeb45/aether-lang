@@ -16,7 +16,7 @@ struct Interpreter {
     EnvironmentTable *environment = new EnvironmentTable();
     // always points to global scope
     EnvironmentTable *global = environment;
-    
+
     std::vector<std::string> errors;
     std::vector<Stmt *> stmts;
 
@@ -31,6 +31,7 @@ struct Interpreter {
     void execute_if_stmt(IfStmt *if_stmt);
     void execute_while_stmt(WhileStmt *while_stmt);
     void execute_func_stmt(FuncStmt *func_stmt);
+    void execute_return_stmt(ReturnStmt *return_stmt);
 
     // Evaluate methods
     RuntimeValue evaluate(Expr *expr);

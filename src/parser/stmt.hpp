@@ -98,9 +98,19 @@ struct IfStmt : Stmt {
     }
 
     std::string visualize() override {
-        std::string visz = "(if expression ";
+        std::string visz = "(if, condition: {";
         if (expr)
             visz += expr->visualize();
+        visz += "} then -> {";
+        
+        if (then_branch) {
+            visz += then_branch->visualize();
+        }
+        visz += "}";
+
+        if (else_branch) {
+            visz += " else branch -> {" + else_branch->visualize() + "}";
+        }
         return visz + ")";
     }
 };
@@ -148,5 +158,18 @@ struct FuncStmt : Stmt {
         if (body)
             visz += "(" + body->visualize() + ")";
         return visz + ")";
+    }
+};
+
+struct ReturnStmt : Stmt {
+    Expr *expr;
+
+    ReturnStmt(Expr *expr) {
+        this->expr = expr;
+        type = NodeType::RETURN_STMT;
+    }
+
+    std::string visualize() override {
+        return " (return stmt: " + (expr ? expr->visualize() : "") + ")";
     }
 };

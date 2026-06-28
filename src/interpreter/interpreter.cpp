@@ -1,5 +1,6 @@
 #include "./interpreter.hpp"
 #include "../core/callable.hpp"
+#include "../exceptions/return_exception.hpp"
 
 void Interpreter::execute() {
     for (Stmt *stmt : stmts) {
@@ -18,6 +19,15 @@ RuntimeValue Interpreter::evaluate_expr(Expr *expr) {
         std::exit(70);
     }
     return value;
+}
+
+void Interpreter::execute_return_stmt(ReturnStmt *return_stmt) {
+    RuntimeValue return_value = evaluate(return_stmt->expr);
+    if (errors.size() > 0) {
+        report_error();
+        std::exit(70);
+    }
+    throw ReturnExecption(return_value);
 }
 
 void Interpreter::execute_stmt(Stmt *stmt) {
@@ -53,6 +63,10 @@ void Interpreter::execute_stmt(Stmt *stmt) {
         execute_func_stmt(static_cast<FuncStmt *>(stmt));
         break;
     }
+    case NodeType::RETURN_STMT: {
+        execute_return_stmt(static_cast<ReturnStmt *>(stmt));
+        break;
+    }
     }
 }
 
@@ -86,11 +100,13 @@ void Interpreter::execute_block_stmt(BlockStmt *block_stmt, EnvironmentTable *en
 
     // change the environment
     environment = env;
-
-    // execute the statements
-    for (int i = 0; i < block_stmt->stmts.size(); i++) {
-        if (block_stmt->stmts[i])
-            execute_stmt(block_stmt->stmts[i]);
+    try {
+        for (Stmt *stmt : block_stmt->stmts) {
+            execute_stmt(stmt);
+        }
+    } catch (...) {
+        environment = prev;
+        throw;
     }
 
     // change it into global one
@@ -121,7 +137,7 @@ void Interpreter::execute_func_stmt(FuncStmt *func_stmt) {
     environment->set(func_stmt->name.lexeme, std::make_shared<CustomFunction>(custm_func));
 }
 
-/* 
+/*
 Evaluation Code
 */
 
@@ -294,7 +310,8 @@ RuntimeValue Interpreter::perform_logical_operation(Logical *logical_node) {
     RuntimeValue left = evaluate(logical_node->left);
 
     if (logical_node->op.type == TokenType::OR) {
-        if (is_truthy(left)) return left;
+        if (is_truthy(left))
+            return left;
     } else if (!is_truthy(left)) {
         return left;
     }
@@ -306,9 +323,9 @@ RuntimeValue Interpreter::perform_fun_call(Call *fun_call_node) {
 
     std::vector<RuntimeValue> args;
 
-    for (Expr *expr: fun_call_node->args)
+    for (Expr *expr : fun_call_node->args)
         args.push_back(evaluate(expr));
-    
+
     if (!is_callable(calle)) {
         errors.push_back("Unknown value found while calling a function");
         return nullptr;
