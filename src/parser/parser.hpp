@@ -55,7 +55,7 @@ struct Parser {
     Stmt *function_stmt(std::string kind);
 
     void uninitalize_var_error(Stmt *stmt);
-
+    void synchronize();
   public:
     Parser(std::vector<Token> &tokens) {
         this->tokens = tokens;

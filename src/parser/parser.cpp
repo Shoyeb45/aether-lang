@@ -271,6 +271,7 @@ Stmt *Parser::expression_stmt() {
 
     // error
     errors.push_back(previous().construct_err_message("Expected ;"));
+    synchronize();
     return nullptr;
 }
 
@@ -500,4 +501,28 @@ Stmt *Parser::statement() {
     }
 
     return expression_stmt();
+}
+
+
+void Parser::synchronize() {
+    advance();
+
+    while (!is_at_end()) {
+        if (previous().type == TokenType::SEMICOLON)
+            return;
+
+        switch (peek().type) {
+        case TokenType::FUN:
+        case TokenType::VAR:
+        case TokenType::FOR:
+        case TokenType::IF:
+        case TokenType::WHILE:
+        case TokenType::PRINT:
+            return;
+        default:
+            break;
+        }
+
+        advance();
+    }
 }
