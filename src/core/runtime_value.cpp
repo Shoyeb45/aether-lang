@@ -76,8 +76,12 @@ std::string get_runtime_to_str(RuntimeValue &value) {
         return get_string(value);
     } else if (is_callable(value)) {
         return get_callable(value)->to_string();
-    } else if (is_aether_class(value)) {
-        return get_aether_class(value)->to_string();
+    } 
+    // else if (is_aether_class(value)) {
+    //     return get_aether_class(value)->to_string();
+    // } 
+    else if (is_aether_instance(value)) {
+        return get_aether_instance(value)->to_string();
     }
     return "";
 }
@@ -90,10 +94,10 @@ std::shared_ptr<Callable> get_callable(RuntimeValue &value) {
     return std::get<std::shared_ptr<Callable>>(value);
 }
 
-bool is_aether_class(RuntimeValue &value) {
-    return std::holds_alternative<std::shared_ptr<AetherClass>>(value);
+bool is_aether_instance(RuntimeValue &value) {
+    return std::holds_alternative<std::shared_ptr<AetherInstance>>(value);
 }
 
-std::shared_ptr<AetherClass> get_aether_class(RuntimeValue &value) {
-    return std::get<std::shared_ptr<AetherClass>>(value);
-}
+std::shared_ptr<AetherInstance> get_aether_instance(RuntimeValue &value) {
+    return std::get<std::shared_ptr<AetherInstance>>(value);
+}   

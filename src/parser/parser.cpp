@@ -505,7 +505,6 @@ Stmt *Parser::class_stmt() {
     std::vector<FuncStmt *> methods;
     
     while (!check(TokenType::RIGHT_BRACE) && !is_at_end()) {
-        std::cout << peek() << "\n";
         methods.push_back((FuncStmt *) function_stmt("method"));
     }
     consume(TokenType::RIGHT_BRACE, previous().construct_err_message("Expect '}' after class body."));

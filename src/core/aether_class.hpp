@@ -1,18 +1,26 @@
 #pragma once 
 
 #include <string>
+#include "callable.hpp"
 
-struct AetherClass {
+struct AetherInstance {
+    AetherClass *aether_class;
+
+    AetherInstance(AetherClass *aether_class)
+        : aether_class(aether_class) {}
+
+    std::string to_string();
+};
+
+struct AetherClass : Callable {
     std::string name;
 
     AetherClass(std::string &name)
         : name(name) {}
 
-    friend std::ostream &operator<<(std::ostream &os, AetherClass *aether_class) {
-        os << aether_class->to_string();
-        return os;
-    }
-    std::string to_string() {
-        return name;
-    }
+    std::string to_string();
+
+    int arity();
+    RuntimeValue call(Interpreter *interpreter, const std::vector<RuntimeValue> &args);
 };
+
