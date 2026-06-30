@@ -139,7 +139,7 @@ void Resolver::resolve_variable_expr(Variable *variable) {
         if (scope.find(variable->identifier.lexeme) != scope.end() && !scope.at(variable->identifier.lexeme)) {
             std::cerr << variable->identifier.construct_err_message("Can't read local variable in its own initializer.")
                       << "\n";
-            std::exit(70);
+            std::exit(65);
         }
     }
     resolve_local(variable, variable->identifier);

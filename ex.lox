@@ -1,13 +1,12 @@
-{
-  var quz = "outer quz";
-  var bar = "outer bar";
-  {
-    quz = "modified quz";
-    var bar = "inner bar";
-    print quz;
-    print bar;
+fun outer() {
+  var a = "outer";
+
+  fun inner() {
+    var a = a;    // Error: Can't read local variable in its own initializer
+    print a;
   }
-  print quz;
-  print bar;
+
+  inner();
 }
-print quz;
+
+outer();
