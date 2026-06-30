@@ -181,6 +181,13 @@ RuntimeValue Interpreter::assign_variable(Assign *assign) {
 
     if (locals.find(assign) != locals.end()) {
         int dist = locals.at(assign);
+        // if (environment->existsAt(name, dist)) {
+        //     errors.push_back(
+        //         assign->identifier.construct_err_message("Error at " + name + ": Already a variable with this name in this scope.")
+        //     );
+        //     report_error();
+        //     std::exit(70);
+        // }
         environment->assignAt(name, dist, value);
         return value;
     }

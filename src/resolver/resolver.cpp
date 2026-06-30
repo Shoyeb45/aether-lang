@@ -8,6 +8,12 @@ void Resolver::declare(Token &name) {
         return;
 
     std::unordered_map<std::string, bool> &scope = scopes.back();
+    if (scope.find(name.lexeme) != scope.end()) {
+        std::cerr << name.construct_err_message("Variable '" + name.lexeme + "' is already declared in this scope.")
+                  << "\n";
+        std::exit(65);
+    }
+
     scope[name.lexeme] = false;
 }
 
@@ -152,8 +158,8 @@ void Resolver::resolve_binary_expr(Binary *binary) {
 
 void Resolver::resolve_call_expr(Call *call) {
     resolve_expr(call->calle);
-    
-    for (Expr *arg: call->args) {
+
+    for (Expr *arg : call->args) {
         resolve_expr(arg);
     }
 }

@@ -72,6 +72,11 @@ struct EnvironmentTable {
         return env;
     }
 
+    bool existsAt(std::string &name, int depth) {
+        auto env = ancestor(depth);
+        return env->table.find(name) != env->table.end();
+    }
+
     void assignAt(std::string &name, int depth, RuntimeValue &value) {
         auto env = ancestor(depth);
         env->table.at(name) = value;
