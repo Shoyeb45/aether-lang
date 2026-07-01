@@ -106,9 +106,15 @@ void Resolver::resolve_while_stmt(WhileStmt *while_stmt) {
 void Resolver::resolve_class_declaration(ClassStmt *class_stmt) {
     declare(class_stmt->name);
     define(class_stmt->name);
+
+    begin_scope();
+    scopes.back()["this"] = true;
+
     for (FuncStmt *stmt : class_stmt->methods) {
         resolve_function(stmt, "method");
     }
+    
+    end_scope();
 }
 
 void Resolver::resolve(Stmt *stmt) {
@@ -197,6 +203,10 @@ void Resolver::resolve_set_expr(Set *set) {
     resolve_expr(set->value);
 }
 
+void Resolver::resolve_this_expr(This *this_node) {
+    resolve_local(this_node, this_node->name);
+}
+
 void Resolver::resolve_expr(Expr *expr) {
     switch (expr->type) {
     case NodeType::VARIABLE:
@@ -225,6 +235,9 @@ void Resolver::resolve_expr(Expr *expr) {
         break;
     case NodeType::SET:
         resolve_set_expr(static_cast<Set *>(expr));
+        break;
+    case NodeType::THIS:
+        resolve_this_expr(static_cast<This *>(expr));
         break;
     }
 }

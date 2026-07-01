@@ -12,8 +12,9 @@ RuntimeValue AetherInstance::get(Token &name) {
     auto method = aether_class->find_method(name.lexeme);
 
     if (method) {
-        return method;
+        return method->bind(shared_from_this());
     }
+
     std::cerr << name.construct_err_message("Undefined property '" + name.lexeme + "'.") << "\n";
     std::exit(70);
 }

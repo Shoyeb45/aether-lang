@@ -206,3 +206,15 @@ struct Set : Expr {
         return visz + ")";
     }
 };
+
+struct This : Expr {
+    Token name;
+    This(Token name) {
+        type = NodeType::THIS;
+        this->name = name;
+    }
+
+    std::string visualize() override {
+        return "(this " + name.lexeme + ")";
+    }
+};

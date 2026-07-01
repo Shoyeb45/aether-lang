@@ -78,6 +78,10 @@ Expr *Parser::primary() {
         return new Variable(advance());
     }
 
+    if (check(TokenType::THIS)) {
+        return new This(advance());
+    }
+
     errors.push_back(peek().construct_err_message("Error at ')': Expect expression."));
     return nullptr;
 }

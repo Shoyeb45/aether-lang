@@ -4,7 +4,7 @@
 #include "callable.hpp"
 #include <unordered_map>
 
-struct AetherInstance {
+struct AetherInstance : std::enable_shared_from_this<AetherInstance> {
     AetherClass *aether_class;
     std::unordered_map<std::string, RuntimeValue> fields;
 
@@ -28,5 +28,6 @@ struct AetherClass : Callable {
     int arity();
     RuntimeValue call(Interpreter *interpreter, const std::vector<RuntimeValue> &args);
     std::shared_ptr<Callable> find_method(std::string &name);
+    RuntimeValue bind(std::shared_ptr<AetherInstance> instance) { return nullptr; };
 };
 

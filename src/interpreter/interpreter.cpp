@@ -199,8 +199,10 @@ RuntimeValue Interpreter::evaluate(Expr *node) {
         return perform_binary_operation(static_cast<Binary *>(node));
     case NodeType::UNARY:
         return perform_unary_operation(static_cast<Unary *>(node));
-    case NodeType::VARIABLE:
-        return look_up_variable(static_cast<Variable *>(node));
+    case NodeType::VARIABLE: {
+        auto var = static_cast<Variable *>(node);
+        return look_up_variable(var, var->identifier);
+    }
     case NodeType::ASSIGN:
         return assign_variable(static_cast<Assign *>(node));
     case NodeType::LOGICAL:
@@ -211,6 +213,10 @@ RuntimeValue Interpreter::evaluate(Expr *node) {
         return perform_get_expr(static_cast<Get *>(node));
     case NodeType::SET:
         return perform_set_expr(static_cast<Set *>(node));
+    case NodeType::THIS: {
+        auto this_node = static_cast<This *>(node);
+        return look_up_variable(this_node, this_node->name);
+    }
     };
     return nullptr;
 }
@@ -406,8 +412,8 @@ void Interpreter::resolve(Expr *expr, int depth) {
     locals[expr] = depth;
 }
 
-RuntimeValue Interpreter::look_up_variable(Variable *expr) {
-    std::string name = expr->identifier.lexeme;
+RuntimeValue Interpreter::look_up_variable(Expr *expr, Token &identifier) {
+    std::string name = identifier.lexeme;
     if (locals.find(expr) != locals.end()) {
         int dist = locals.at(expr);
         return environment->getAt(name, dist);
@@ -416,7 +422,7 @@ RuntimeValue Interpreter::look_up_variable(Variable *expr) {
     if (global->exists(name))
         return global->get(name);
 
-    errors.push_back(expr->identifier.construct_err_message("Undeclared variable: " + name));
+    errors.push_back(identifier.construct_err_message("Undeclared variable: " + name));
     report_error();
     std::exit(70);
 }

@@ -33,6 +33,7 @@ struct Resolver {
     void resolve_set_expr(Set *set);
     void resolve_grp_expr(Group *grp);
     void resolve_call_expr(Call *call);
+    void resolve_this_expr(This *this_node);
     void resolve_unary_expr(Unary *unary);
     void resolve_assign_expr(Assign *assign);
     void resolve_binary_expr(Binary *binary);
