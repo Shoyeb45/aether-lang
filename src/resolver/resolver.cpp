@@ -114,6 +114,7 @@ void Resolver::resolve_while_stmt(WhileStmt *while_stmt) {
 void Resolver::resolve_class_declaration(ClassStmt *class_stmt) {
     ClassType enclosing_class = current_class;
     current_class = ClassType::CLASS;
+
     declare(class_stmt->name);
     define(class_stmt->name);
 
@@ -122,7 +123,9 @@ void Resolver::resolve_class_declaration(ClassStmt *class_stmt) {
                   << "\n";
         std::exit(65);
     }
+
     if (class_stmt->super_class) {
+        current_class = ClassType::SUBCLASS;
         resolve_expr(class_stmt->super_class);
     }
 
@@ -141,7 +144,8 @@ void Resolver::resolve_class_declaration(ClassStmt *class_stmt) {
 
     end_scope();
 
-    if (class_stmt->super_class) end_scope();
+    if (class_stmt->super_class)
+        end_scope();
     current_class = enclosing_class;
 }
 
@@ -240,6 +244,17 @@ void Resolver::resolve_this_expr(This *this_node) {
 }
 
 void Resolver::resolve_super_expr(Super *super_node) {
+    if (current_class == ClassType::NONE) {
+        std::cerr << super_node->keyword.construct_err_message(
+                         "Error at 'super': Can't use 'super' outside of a class.")
+                  << "\n";
+        std::exit(65);
+    } else if (current_class != ClassType::SUBCLASS) {
+        std::cerr << super_node->keyword.construct_err_message("Can't use 'super' in a class with no superclass.")
+                  << "\n";
+        std::exit(65);
+    }
+
     resolve_local(super_node, super_node->keyword);
 }
 
