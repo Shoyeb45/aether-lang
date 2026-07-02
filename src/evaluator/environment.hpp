@@ -7,11 +7,10 @@
 #include <unordered_map>
 
 struct EnvironmentTable {
-  private:
-    std::unordered_map<std::string, RuntimeValue> table;
-    EnvironmentTable *enclosing;
 
   public:
+    EnvironmentTable *enclosing;
+    std::unordered_map<std::string, RuntimeValue> table;
     EnvironmentTable() : enclosing(nullptr) {}
     EnvironmentTable(EnvironmentTable *enclosing) : enclosing(enclosing) {}
 
@@ -58,13 +57,12 @@ struct EnvironmentTable {
         std::exit(70);
     }
 
-    
     RuntimeValue getAt(std::string &name, int depth) {
         auto env = ancestor(depth);
         return env->table.at(name);
     }
 
-    EnvironmentTable* ancestor(int depth) {
+    EnvironmentTable *ancestor(int depth) {
         EnvironmentTable *env = this;
         for (int i = 0; i < depth; i++) {
             env = env->enclosing;

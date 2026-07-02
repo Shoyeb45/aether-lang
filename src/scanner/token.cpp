@@ -101,6 +101,7 @@ std::string Token::token_type_to_string() const {
     case TokenType::RETURN:
     case TokenType::CLASS:
     case TokenType::THIS:
+    case TokenType::SUPER:
         return reserved_words.at(original_token);
     case TokenType::UNKNOWN_CHARACTER:
     default:
@@ -169,6 +170,7 @@ std::string Token::token_type_to_lexeme() const {
     case TokenType::RETURN:
     case TokenType::CLASS:
     case TokenType::THIS:
+    case TokenType::SUPER:
         return original_token;
     default:
         return "";

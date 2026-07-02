@@ -45,6 +45,14 @@ void Interpreter::execute_class_stmt(ClassStmt *class_stmt) {
         }
         is_super_class = true;
     }
+
+    if (is_super_class) {
+        environment = new EnvironmentTable(environment);
+        std::string super_key = "super";
+        environment->set(super_key,
+                         is_super_class ? std::dynamic_pointer_cast<AetherClass>(get_callable(super_class)) : nullptr);
+    }
+
     std::unordered_map<std::string, std::shared_ptr<Callable>> methods;
 
     for (FuncStmt *stmt : class_stmt->methods) {
@@ -56,6 +64,10 @@ void Interpreter::execute_class_stmt(ClassStmt *class_stmt) {
         class_stmt->name.lexeme, methods,
         is_super_class ? std::dynamic_pointer_cast<AetherClass>(get_callable(super_class)) : nullptr);
 
+    if (is_super_class) {
+        environment = environment->enclosing;
+    }
+ 
     environment->set(class_stmt->name.lexeme, klass);
 }
 
@@ -203,6 +215,33 @@ RuntimeValue Interpreter::perform_set_expr(Set *set_node) {
     return value;
 }
 
+RuntimeValue Interpreter::perform_super_expr(Super *super_node) {
+    int dist = locals.at(super_node);
+    std::string super_key = "super";
+    std::string this_key = "this";
+
+    auto super_class = environment->getAt(super_key, dist);
+    if (is_nil(super_class)) {
+        std::exit(70);
+    }
+    auto instance = environment->getAt(this_key, dist - 1);
+    if (is_nil(instance)) {
+        std::exit(70);
+    }
+    if (!is_callable(super_class)) {
+        // error
+        std::exit(70);
+    }
+    auto super_class_2 = get_callable(super_class);
+    if (super_class_2->type != CallableType::CLASS) {
+        // error
+        std::exit(70);
+    }
+
+    auto method = std::static_pointer_cast<AetherClass>(super_class_2)->find_method(super_node->method.lexeme);
+    return method->bind(get_aether_instance(instance));
+}
+
 RuntimeValue Interpreter::evaluate(Expr *node) {
     if (!node)
         return nullptr;
@@ -233,6 +272,9 @@ RuntimeValue Interpreter::evaluate(Expr *node) {
     case NodeType::THIS: {
         auto this_node = static_cast<This *>(node);
         return look_up_variable(this_node, this_node->name);
+    }
+    case NodeType::SUPER: {
+        return perform_super_expr(static_cast<Super *>(node));
     }
     };
     return nullptr;

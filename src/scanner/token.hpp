@@ -48,6 +48,7 @@ enum class TokenType {
     RETURN,
     CLASS,
     THIS,
+    SUPER,
     
     PRINT,
     IDENTIFIER,

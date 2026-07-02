@@ -14,6 +14,7 @@ enum NodeType {
     GET, // getter for the instances
     SET, // setter for the instances
     THIS,
+    SUPER,
     PRINT_STMT,
     EXPR_STMT,
     VARIABLE_STMT,

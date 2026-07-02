@@ -125,6 +125,12 @@ void Resolver::resolve_class_declaration(ClassStmt *class_stmt) {
     if (class_stmt->super_class) {
         resolve_expr(class_stmt->super_class);
     }
+
+    if (class_stmt->super_class) {
+        // define super class
+        begin_scope();
+        scopes.back()["super"] = true;
+    }
     begin_scope();
     scopes.back()["this"] = true;
 
@@ -135,6 +141,7 @@ void Resolver::resolve_class_declaration(ClassStmt *class_stmt) {
 
     end_scope();
 
+    if (class_stmt->super_class) end_scope();
     current_class = enclosing_class;
 }
 
@@ -232,6 +239,10 @@ void Resolver::resolve_this_expr(This *this_node) {
     resolve_local(this_node, this_node->name);
 }
 
+void Resolver::resolve_super_expr(Super *super_node) {
+    resolve_local(super_node, super_node->keyword);
+}
+
 void Resolver::resolve_expr(Expr *expr) {
     switch (expr->type) {
     case NodeType::VARIABLE:
@@ -263,6 +274,9 @@ void Resolver::resolve_expr(Expr *expr) {
         break;
     case NodeType::THIS:
         resolve_this_expr(static_cast<This *>(expr));
+        break;
+    case NodeType::SUPER:
+        resolve_super_expr(static_cast<Super *>(expr));
         break;
     }
 }

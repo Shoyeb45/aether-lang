@@ -1,24 +1,22 @@
-class baz {
-  inbaz() {
-    print "from baz";
+class Base {
+  method() {
+    print "Base.method()";
   }
 }
 
-class hello < baz {
-  inhello() {
-    print "from hello";
+class Parent < Base {
+  method() {
+    super.method();
   }
 }
 
-class world < hello {
-  inworld() {
-    print "from world";
+class Child < Parent {
+  method() {
+    super.method();
   }
 }
 
-// world should inherit the methods
-// from both baz and hello
-var world = world();
-world.inbaz();
-world.inhello();
-world.inworld();
+var parent = Parent();
+parent.method();
+var child = Child();
+child.method();

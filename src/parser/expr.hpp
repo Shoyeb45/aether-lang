@@ -218,3 +218,18 @@ struct This : Expr {
         return "(this " + name.lexeme + ")";
     }
 };
+
+struct Super : Expr {
+    Token keyword;
+    Token method;
+
+    Super(Token &keyword, Token &method) {
+        this->keyword = keyword;
+        this->method = method;
+        type = NodeType::SUPER;
+    }
+
+    std::string visualize() override {
+        return "(super " + keyword.lexeme + ", method: " + method.lexeme + ")";
+    }
+};

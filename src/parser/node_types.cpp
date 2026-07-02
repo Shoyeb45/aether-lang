@@ -56,6 +56,9 @@ std::string node_type_to_string(NodeType type) {
     case NodeType::SET: {
         return "SET EXPR";
     }
+    case NodeType::SUPER: {
+        return "SUPER EXPR";
+    }
     }
     return "INVALID NODE TYPE";
 }

@@ -82,6 +82,14 @@ Expr *Parser::primary() {
         return new This(advance());
     }
 
+    // super.some_method()
+    if (check(TokenType::SUPER)) {
+        Token keyword = advance();
+        consume(TokenType::DOT, previous().construct_err_message("Expect '.' after 'super'."));
+        Token method = consume(TokenType::IDENTIFIER, previous().construct_err_message("Expect superclass method name."));
+        return new Super(keyword, method);
+    }
+
     errors.push_back(peek().construct_err_message("Error at ')': Expect expression."));
     return nullptr;
 }

@@ -39,12 +39,13 @@ struct Interpreter {
 
     // Evaluate methods
     RuntimeValue evaluate(Expr *expr);
-    RuntimeValue perform_binary_operation(Binary *binary_node);
-    RuntimeValue perform_unary_operation(Unary *unary_node);
-    RuntimeValue perform_logical_operation(Logical *logical_node);
     RuntimeValue perform_fun_call(Call *fun_call_node);
     RuntimeValue perform_get_expr(Get *get_node);
     RuntimeValue perform_set_expr(Set *set_node);
+    RuntimeValue perform_super_expr(Super *super_node);
+    RuntimeValue perform_unary_operation(Unary *unary_node);
+    RuntimeValue perform_binary_operation(Binary *binary_node);
+    RuntimeValue perform_logical_operation(Logical *logical_node);
 
     void define_native_fns();
     bool check_invalid_values(RuntimeValue &v1, RuntimeValue &v2);

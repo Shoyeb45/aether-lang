@@ -114,6 +114,8 @@ std::pair<TokenType, int> identify_token(int idx, const std::string &file_conten
                 type = TokenType::CLASS;
             } else if (word == "this") {
                 type = TokenType::THIS;
+            } else if (word == "super") {
+                type = TokenType::SUPER;
             }
         } else {
             type = TokenType::IDENTIFIER;
