@@ -44,7 +44,8 @@ void Resolver::end_scope() {
 }
 
 // Statement resolvers
-void Resolver::resolve_function(FuncStmt *fun_stmt, std::string function_type) {
+void Resolver::resolve_function(FuncStmt *fun_stmt, FunctionType function_type) {
+    current_fun = function_type;
     begin_scope();
     for (Token &param : fun_stmt->params) {
         declare(param);
@@ -74,7 +75,7 @@ void Resolver::resolve_fun_declaration(FuncStmt *fun_stmt) {
     declare(fun_stmt->name);
     define(fun_stmt->name);
 
-    resolve_function(fun_stmt, "function");
+    resolve_function(fun_stmt, FunctionType::FUNCTION);
 }
 
 void Resolver::resolve_expr_stmt(ExprStmt *expr_stmt) {
@@ -94,8 +95,13 @@ void Resolver::resolve_print_stmt(PrintStmt *print_stmt) {
 }
 
 void Resolver::resolve_return_stmt(ReturnStmt *return_stmt) {
-    if (return_stmt->expr)
+    if (return_stmt->expr) {
+        if (current_fun == FunctionType::INTIALIZER) {
+            std::cerr << return_stmt->keyword.construct_err_message("Can't return a value from an initializer.") << "\n";
+            std::exit(65);
+        }
         resolve_expr(return_stmt->expr);
+    }
 }
 
 void Resolver::resolve_while_stmt(WhileStmt *while_stmt) {
@@ -113,7 +119,8 @@ void Resolver::resolve_class_declaration(ClassStmt *class_stmt) {
     scopes.back()["this"] = true;
 
     for (FuncStmt *stmt : class_stmt->methods) {
-        resolve_function(stmt, "method");
+        FunctionType fun_type = stmt->name.lexeme == "init" ? FunctionType::INTIALIZER : FunctionType::METHOD;
+        resolve_function(stmt, fun_type);
     }
 
     end_scope();

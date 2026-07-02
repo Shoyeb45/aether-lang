@@ -491,6 +491,7 @@ Stmt *Parser::function_stmt(std::string kind) {
 }
 
 Stmt *Parser::return_stmt() {
+    Token keyword = previous();
     if (fun_depth == 0) {
         errors.push_back(previous().construct_err_message("Can't return from top-level code."));
         return nullptr;
@@ -500,7 +501,7 @@ Stmt *Parser::return_stmt() {
         expr = expression();
 
     consume(TokenType::SEMICOLON, previous().construct_err_message("Expected ';' at end of return statement"));
-    return new ReturnStmt(expr);
+    return new ReturnStmt(expr, keyword);
 }
 
 Stmt *Parser::class_stmt() {

@@ -163,9 +163,10 @@ struct FuncStmt : Stmt {
 
 struct ReturnStmt : Stmt {
     Expr *expr;
-
-    ReturnStmt(Expr *expr) {
+    Token keyword;
+    ReturnStmt(Expr *expr, Token keyword) {
         this->expr = expr;
+        this->keyword = keyword;
         type = NodeType::RETURN_STMT;
     }
 

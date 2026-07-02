@@ -14,14 +14,22 @@ struct Resolver {
       NONE,
       CLASS,
     };
+
+    enum FunctionType {
+      FUNCTION,
+      METHOD,
+      INTIALIZER,
+    };
+
     ClassType current_class = ClassType::NONE;
+    FunctionType current_fun;
 
     void define(Token &name);
     void declare(Token &name);
     void end_scope();
     void begin_scope();
     void resolve_local(Expr *expr, Token &name);
-    void resolve_function(FuncStmt *fun_stmt, std::string kind);
+    void resolve_function(FuncStmt *fun_stmt, FunctionType kind);
 
     void resolve(Stmt *stmt);
     void resolve_if_stmt(IfStmt *if_stmt);

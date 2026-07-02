@@ -1,18 +1,7 @@
-class Counter {
-  init(startValue) {
-    if (startValue < 0) {
-      print "startValue can't be negative";
-      this.count = 0;
-    } else {
-      this.count = startValue;
-    }
+class Foo {
+  init() {
+    return "something else";
   }
 }
 
-// constructor is called automatically here
-var instance = Counter(-72);
-print instance.count;
-
-// it should be possible to call the constructor
-// on a class instance as well
-print instance.init(72).count;
+Foo();
