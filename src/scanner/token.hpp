@@ -72,11 +72,15 @@ struct Token {
     std::string lexeme;
     std::string literal;
     std::string original_token;
+
+    /* 1-indexed */
     int line;
+    /* 1-indexed */
+    int column; 
 
     Token() : type(TokenType::UNKNOWN_CHARACTER) {}
 
-    Token(std::string, TokenType, int);
+    Token(std::string, TokenType, int, int = -1);
     Token(std::string, TokenType, std::string, std::string, int);
 
     std::string to_string() const;

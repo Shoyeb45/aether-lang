@@ -2,10 +2,11 @@
 #include <string>
 #include "../core/utils.hpp"
 
-Token::Token(std::string orgnal_char, TokenType type, int line) {
+Token::Token(std::string orgnal_char, TokenType type, int line, int column) {
     this->original_token = orgnal_char;
     this->type = type;
     this->line = line;
+    this->column = column;
     this->lexeme = this->token_type_to_lexeme();
     this->literal = this->get_literal();
 }
@@ -27,10 +28,10 @@ std::string Token::to_lexical_error() const {
 
     switch (type) {
     case TokenType::UNKNOWN_CHARACTER:
-        error_msg = "[line " + std::to_string(this->line) + "] Error: Unexpected character: " + this->original_token;
+        error_msg = "Unexpected character: " + this->original_token;
         break;
     case TokenType::STRING_UNTERMINATED:
-        error_msg = "[line " + std::to_string(this->line) + "] Error: Unterminated string.";
+        error_msg = "Unterminated string.";
         break;
     }
 

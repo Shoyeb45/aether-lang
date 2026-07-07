@@ -161,7 +161,6 @@ std::pair<TokenType, int> identify_token(int idx, const std::string &file_conten
 }
 
 std::vector<Token> LexicalScanner::scan_file(const std::vector<std::string> &file_contents) {
-    // std::vector<std::string> tokens;
     std::vector<Token> tokens;
     std::vector<std::string> lexical_errors;
 
@@ -183,7 +182,6 @@ std::vector<Token> LexicalScanner::scan_file(const std::vector<std::string> &fil
             auto [token_type, add] = identify_token(i, file_content);
             
             std::string original = file_content.substr(i, add);
-
             std::string str_literal = "";
             
             // if we got string terminated then we may have the other " in next line
@@ -204,10 +202,9 @@ std::vector<Token> LexicalScanner::scan_file(const std::vector<std::string> &fil
                     }
                 }
             }
-            // std::cout << "str_literal " << str_literal << "\n";
 
             original += (str_literal != "" ? "\n" + str_literal : "");
-            const Token token = Token{original, token_type, line};
+            const Token token = Token{original, token_type, line, i + 1};
 
             if (str_literal != "") {
                 tokens.push_back(token);

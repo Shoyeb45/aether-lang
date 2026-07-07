@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <iostream>
 
 
 std::vector<std::string> read_file_contents(const std::string& filename) {
@@ -61,4 +62,18 @@ std::string normalize_number_literal(const double num) {
         str_num.pop_back();
 
     return str_num;
+};
+
+void verify_file_name(const std::string &file_name) {
+    int dot_idx = file_name.find('.');
+
+    if (dot_idx == std::string::npos) {
+        std::cerr << "\033[31m[Invalid File] \033[0mPlease provide file with extension '.ae'\n";
+        std::exit(1);
+    }
+    std::string extension = file_name.substr(dot_idx + 1);
+    if (extension == "ae") return;
+
+    std::cerr << "\033[31m[Invalid File Extension] \033[0mPlease provide file with extension '.ae'\n";
+    std::exit(1);
 }

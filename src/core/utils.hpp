@@ -8,3 +8,4 @@ std::string rtrim(const std::string& s);
 std::string trim(const std::string& s);
 std::string normalize_number_literal(const std::string &num);
 std::string normalize_number_literal(const double num);
+void verify_file_name(const std::string &file_name);
