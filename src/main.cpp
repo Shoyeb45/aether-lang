@@ -8,20 +8,16 @@
 // custom headers
 #include "core/utils.hpp"
 #include "evaluator/evaluator.hpp"
+#include "exceptions/error_handler.hpp"
 #include "executor/executor.hpp"
 #include "interpreter/interpreter.hpp"
 #include "parser/parser.hpp"
 #include "resolver/resolver.hpp"
 #include "scanner/scanner.hpp"
-#include "exceptions/error_handler.hpp"
 
 std::vector<Token> scan(std::vector<std::string> &file_contents) {
     auto tokens = LexicalScanner::scan_file(file_contents);
-
-    if (LexicalScanner::is_lexical_error_present(tokens)) {
-        LexicalScanner::print_lexical_error(tokens);
-        std::exit(65);
-    }
+    ErrorHandler::get_instance().show_compile_error();
 
     return tokens;
 }
@@ -42,7 +38,7 @@ int main(int argc, char *argv[]) {
     verify_file_name(argv[2]);
     std::vector<std::string> file_contents = read_file_contents(argv[2]);
 
-    ErrorHandler& err_handler = ErrorHandler::get_instance();
+    ErrorHandler &err_handler = ErrorHandler::get_instance();
     err_handler.set_file_name(argv[2]);
     err_handler.set_file_contents(file_contents);
 
@@ -52,46 +48,27 @@ int main(int argc, char *argv[]) {
         bool is_error = false;
         for (auto &token : tokens) {
             if (token.is_error()) {
-                // std::cerr << token.to_lexical_error() << "\n";
-                // is_error = true;
                 err_handler.report_compile_error(token.to_lexical_error(), token);
                 continue;
             }
             std::cout << token << "\n";
         }
 
-        // if (is_error) {
-        //     std::exit(65);
-        // }
         err_handler.show_compile_error();
     } else if (command == "parse") {
         auto tokens = scan(file_contents);
 
         Parser *parser = new Parser(tokens);
         parser->parse();
-
-        if (parser->is_error()) {
-            parser->report_error();
-            std::exit(65);
-        } else {
-            parser->visualize();
-        }
-
+        err_handler.show_compile_error();
+        parser->visualize();
     } else if (command == "evaluate") {
         auto tokens = LexicalScanner::scan_file(file_contents);
-
-        if (LexicalScanner::is_lexical_error_present(tokens)) {
-            LexicalScanner::print_lexical_error(tokens);
-            std::exit(65);
-        }
+        err_handler.show_compile_error();
 
         Parser *parser = new Parser(tokens);
-
-        if (parser->is_error()) {
-            parser->report_error();
-            std::exit(65);
-        }
         Expr *root = parser->parse();
+        err_handler.show_compile_error();
 
         Evaluator *evaluator = new Evaluator(root);
         std::string evaluation_result = evaluator->evaluate();
@@ -107,11 +84,7 @@ int main(int argc, char *argv[]) {
         Parser *parser = new Parser(tokens);
 
         std::vector<Stmt *> stmts = parser->parse_stmt();
-        if (parser->is_error()) {
-            parser->report_error();
-            std::exit(65);
-        }
-        // parser->visualize();
+        err_handler.show_compile_error();
 
         Interpreter *interpreter = new Interpreter(stmts);
         Resolver *resolver = new Resolver(interpreter);

@@ -1,15 +1,19 @@
 #pragma once
+
 #include "expr.hpp"
 #include "stmt.hpp"
 #include <string>
 #include <vector>
+#include "../exceptions/error_handler.hpp"
 
 struct Parser {
+
+    ErrorHandler &err_handler = ErrorHandler::get_instance();
+
     int fun_depth = 0;
     std::vector<Token> tokens;
     // for multi stmts
     std::vector<Stmt *> statements;
-    std::vector<std::string> errors;
 
     // for the single expression
     Expr *root;
@@ -26,7 +30,7 @@ struct Parser {
     /// check if it's last token
     bool is_at_end();
     /// Consume the type if present and advance
-    Token consume(TokenType type, std::string message);
+    Token consume(TokenType type, Token token, std::string message);
 
     bool match(TokenType type);
     bool check(TokenType type);
@@ -69,9 +73,4 @@ struct Parser {
         return root = expression();
     }
     void visualize();
-    void report_error();
-
-    bool is_error() {
-        return errors.size() > 0;
-    }
 };

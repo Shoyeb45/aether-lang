@@ -32,6 +32,6 @@ public:
         static ErrorHandler instance;
         return instance;
     }
-    void report_compile_error(std::string message, Token &token);
+    void report_compile_error(std::string message, Token token);
     void show_compile_error();
 };

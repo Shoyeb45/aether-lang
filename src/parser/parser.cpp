@@ -38,10 +38,10 @@ bool Parser::match(TokenType type) {
     return false;
 }
 
-Token Parser::consume(TokenType type, std::string message) {
+Token Parser::consume(TokenType type, Token token, std::string message) {
     if (check(type))
         return advance();
-    errors.push_back(message);
+    err_handler.report_compile_error(message, token);
     return Token{};
 }
 
@@ -68,7 +68,7 @@ Expr *Parser::primary() {
         Expr *grp_node = new Group(expr);
 
         if (!match(TokenType::RIGHT_PAREN)) {
-            errors.push_back(peek().construct_err_message("Expected ')'"));
+            err_handler.report_compile_error("Expected closing paren ')'", peek());
             return nullptr;
         }
         return grp_node;
@@ -85,12 +85,12 @@ Expr *Parser::primary() {
     // super.some_method()
     if (check(TokenType::SUPER)) {
         Token keyword = advance();
-        consume(TokenType::DOT, previous().construct_err_message("Expect '.' after 'super'."));
-        Token method = consume(TokenType::IDENTIFIER, previous().construct_err_message("Expect superclass method name."));
+        consume(TokenType::DOT, previous(), "Expect '.' after 'super'.");
+        Token method = consume(TokenType::IDENTIFIER, previous(), "Expect superclass method name.");
         return new Super(keyword, method);
     }
 
-    errors.push_back(peek().construct_err_message("Error at ')': Expect expression."));
+    err_handler.report_compile_error("Error at ')': Expect expression.", peek());
     return nullptr;
 }
 
@@ -103,7 +103,7 @@ Expr *Parser::call() {
         if (match(TokenType::LEFT_PAREN)) {
             expr = finish_call(expr, name);
         } else if (match(TokenType::DOT)) {
-            Token name = consume(TokenType::IDENTIFIER, "Expected property name after '.'");
+            Token name = consume(TokenType::IDENTIFIER, previous(), "Expected property name after '.'");
             expr = new Get(expr, name);
         } else {
             break;
@@ -121,7 +121,7 @@ Expr *Parser::finish_call(Expr *calle, Token &name) {
         } while (match(TokenType::COMMA));
     }
 
-    consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expected ')' at the argument ending"));
+    consume(TokenType::RIGHT_PAREN, previous(), "Expected ')' at the argument ending");
 
     return new Call(name, calle, arguments);
 }
@@ -204,7 +204,7 @@ Expr *Parser::assignment() {
             Get *get = static_cast<Get *>(expr);
             return new Set(get->expr, value, get->name);
         }
-        errors.push_back(equals.construct_err_message("Invalid assignment operation."));
+        err_handler.report_compile_error("Invalid assignment operation.", equals);
     }
     return expr;
 }
@@ -246,25 +246,15 @@ void Parser::visualize() {
     std::cout << trim(ast) << "\n";
 }
 
-void Parser::report_error() {
-    if (!is_error())
-        return;
-    for (int i = 0; i < errors.size(); i++) {
-        std::cerr << errors[i] << "\n";
-    }
-}
-
 std::vector<Stmt *> Parser::parse_stmt() {
     while (!is_at_end()) {
-        // std::cout << peek() << "\n";
         statements.push_back(statement());
     }
     return statements;
 }
 
 Stmt *Parser::var_stmt() {
-    Token identifier =
-        consume(TokenType::IDENTIFIER, previous().construct_err_message("Expected name of the variable"));
+    Token identifier = consume(TokenType::IDENTIFIER, previous(), "Expected name of the variable");
 
     Expr *expr;
     if (match(TokenType::EQUAL)) {
@@ -274,10 +264,10 @@ Stmt *Parser::var_stmt() {
     }
 
     if (expr == nullptr) {
-        errors.push_back(previous().construct_err_message("Undeclared variable: " + identifier.lexeme));
+        err_handler.report_compile_error("Undeclared variable: " + identifier.lexeme, previous());
     }
 
-    consume(TokenType::SEMICOLON, previous().construct_err_message("Expected ;"));
+    consume(TokenType::SEMICOLON, previous(), "Expected ;");
     return new VariableStmt(expr, identifier);
 }
 
@@ -287,8 +277,7 @@ Stmt *Parser::expression_stmt() {
         return new ExprStmt(expr);
     }
 
-    // error
-    errors.push_back(previous().construct_err_message("Expected ;"));
+    err_handler.report_compile_error("Expected ;", previous());
     synchronize();
     return nullptr;
 }
@@ -304,7 +293,7 @@ Stmt *Parser::prnt_stmt() {
         return new PrintStmt(expr);
     }
 
-    errors.push_back(previous().construct_err_message("Expected ;"));
+    err_handler.report_compile_error("Expected ;", previous());
     return nullptr;
 }
 
@@ -323,7 +312,7 @@ Stmt *Parser::block_stmt() {
     if (match(TokenType::RIGHT_BRACE))
         return new BlockStmt(stmts);
 
-    errors.push_back(previous().construct_err_message("Expected '}'"));
+    err_handler.report_compile_error("Expected '}'", previous());
     return nullptr;
 }
 
@@ -332,7 +321,7 @@ Stmt *Parser::if_stmt() {
     if (match(TokenType::LEFT_PAREN)) {
         // with paren
         Expr *expr = expression();
-        consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expected ')"));
+        consume(TokenType::RIGHT_PAREN, previous(), "Expected ')'");
 
         Stmt *then_branch = statement();
         uninitalize_var_error(then_branch);
@@ -369,7 +358,7 @@ Stmt *Parser::while_stmt() {
     if (match(TokenType::LEFT_PAREN)) {
         Expr *condition = expression();
 
-        consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expected ')'"));
+        consume(TokenType::RIGHT_PAREN, previous(), "Expected ')'");
         Stmt *body = statement();
 
         return new WhileStmt(condition, body);
@@ -389,7 +378,7 @@ void Parser::uninitalize_var_error(Stmt *stmt) {
 
             // we should not assign any uninitialize variables
             if (literal && literal->token.type == TokenType::NIL && literal->token.line == -1) {
-                errors.push_back(previous().construct_err_message("Error in var; Expected expression."));
+                err_handler.report_compile_error("Error in var; Expected expression.", previous());
             }
         }
     }
@@ -397,7 +386,7 @@ void Parser::uninitalize_var_error(Stmt *stmt) {
 
 // for (init; condi; update) { .. body .. }
 Stmt *Parser::for_stmt() {
-    consume(TokenType::LEFT_PAREN, previous().construct_err_message("Expected '('"));
+    consume(TokenType::LEFT_PAREN, previous(), "Expected '('");
     Stmt *initializer = nullptr;
 
     // empty initializer
@@ -411,9 +400,8 @@ Stmt *Parser::for_stmt() {
     // initializer without var
     else {
         initializer = expression_stmt();
-        // std::cout << initializer << "\n";
         if (!initializer) {
-            errors.push_back(previous().construct_err_message("Error: Expected expression at {"));
+            err_handler.report_compile_error("Expected expression at {", previous());
             advance();  // {
             advance();  // }
             advance();  // ;
@@ -424,23 +412,21 @@ Stmt *Parser::for_stmt() {
     if (!check(TokenType::SEMICOLON)) {
         condition = expression();
         if (!condition) {
-            errors.push_back(previous().construct_err_message("Error: Expected expression at {"));
+            err_handler.report_compile_error("Expected expression at {", previous());
             advance();
             advance();
         }
     }
-    consume(TokenType::SEMICOLON, previous().construct_err_message("Expected ';', after for loop condition"));
+    consume(TokenType::SEMICOLON, previous(), "Expected ';', after for loop condition");
 
     Expr *update = nullptr;
     if (!check(TokenType::RIGHT_PAREN)) {
         update = expression();
         if (!update) {
-            errors.push_back(previous().construct_err_message("Error: Expected expression at {"));
-            advance();
-            advance();
+            return nullptr;
         }
     }
-    consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expected ')' after for clauses."));
+    consume(TokenType::RIGHT_PAREN, previous(), "Expected ')' after for clauses.");
 
     Stmt *body = statement();
     uninitalize_var_error(body);
@@ -469,10 +455,10 @@ Stmt *Parser::function_stmt(std::string kind) {
     // fun name() {
     //    ...
     // }
-    Token identifier = consume(TokenType::IDENTIFIER, previous().construct_err_message("Expected " + kind + " name."));
+    Token identifier = consume(TokenType::IDENTIFIER, previous(), "Expected " + kind + " name.");
 
     // Left paren
-    consume(TokenType::LEFT_PAREN, previous().construct_err_message("Expect '(' after " + kind + " name."));
+    consume(TokenType::LEFT_PAREN, previous(), "Expect '(' after " + kind + " name.");
 
     std::vector<Token> params;
     // parse arguments
@@ -481,15 +467,15 @@ Stmt *Parser::function_stmt(std::string kind) {
 
         do {
             if (params.size() >= 255)
-                errors.push_back(previous().construct_err_message("Can't have more than 255 parameters."));
-            params.push_back(consume(TokenType::IDENTIFIER, previous().construct_err_message("Expect parameter name")));
+                err_handler.report_compile_error("Can't have more than 255 parameters.", previous());
+            params.push_back(consume(TokenType::IDENTIFIER, previous(), "Expect parameter name"));
         } while (match(TokenType::COMMA));
     }
 
-    consume(TokenType::RIGHT_PAREN, previous().construct_err_message("Expect ')' after parameters"));
+    consume(TokenType::RIGHT_PAREN, previous(), "Expect ')' after parameters");
 
     // Now function body
-    consume(TokenType::LEFT_BRACE, previous().construct_err_message("Expect '{' after " + kind + " parameters."));
+    consume(TokenType::LEFT_BRACE, previous(), "Expect '{' after " + kind + " parameters.");
 
     fun_depth++;
     BlockStmt *body = (BlockStmt *)block_stmt();
@@ -501,33 +487,33 @@ Stmt *Parser::function_stmt(std::string kind) {
 Stmt *Parser::return_stmt() {
     Token keyword = previous();
     if (fun_depth == 0) {
-        errors.push_back(previous().construct_err_message("Can't return from top-level code."));
+        err_handler.report_compile_error("Can't return from top-level code.", previous());
         return nullptr;
     }
     Expr *expr = nullptr;
     if (!check(TokenType::SEMICOLON))
         expr = expression();
 
-    consume(TokenType::SEMICOLON, previous().construct_err_message("Expected ';' at end of return statement"));
+    consume(TokenType::SEMICOLON, previous(), "Expected ';' at end of return statement");
     return new ReturnStmt(expr, keyword);
 }
 
 Stmt *Parser::class_stmt() {
-    Token name = consume(TokenType::IDENTIFIER, peek().construct_err_message("Expect class name."));
+    Token name = consume(TokenType::IDENTIFIER, peek(), "Expect class name.");
 
     Variable *super_class = nullptr;
     if (match(TokenType::LESS)) {
-        consume(TokenType::IDENTIFIER, previous().construct_err_message("Expect superclass name."));
+        consume(TokenType::IDENTIFIER, previous(), "Expect superclass name.");
         super_class = new Variable(previous());
     }
-    consume(TokenType::LEFT_BRACE, previous().construct_err_message("Expect '{' before class body."));
+    consume(TokenType::LEFT_BRACE, previous(), "Expect '{' before class body.");
 
     std::vector<FuncStmt *> methods;
 
     while (!check(TokenType::RIGHT_BRACE) && !is_at_end()) {
         methods.push_back((FuncStmt *)function_stmt("method"));
     }
-    consume(TokenType::RIGHT_BRACE, previous().construct_err_message("Expect '}' after class body."));
+    consume(TokenType::RIGHT_BRACE, previous(), "Expect '}' after class body.");
 
     return new ClassStmt(name, methods, super_class);
 }

@@ -17,18 +17,18 @@ void ErrorHandler::show_compile_error() {
     }
 
     for (auto &[token, message] : compiler_errors) {
-        std::cerr << file_name << ":" << token.line << ":" << token.column << ": " << "\033[31merror\033[0m " << message
+        std::cerr << file_name << ":" << token.line << ":" << token.column << ": " << "\033[31mError\033[0m " << message
                   << "\n";
         std::cerr << "    " << token.line << " | " << file_contents[token.line - 1] << "\n";
         std::string white_space = "    ";
         for (int i = 0; i < token.column + std::to_string(token.line).size() + 2; i++) {
             white_space += " ";
         }
-        std::cerr << white_space  << "^" << "\n";
+        std::cerr << white_space  << "\033[32m^" << "\n";
     }
     std::exit(65);
 }
 
-void ErrorHandler::report_compile_error(std::string message, Token &token) {
+void ErrorHandler::report_compile_error(std::string message, Token token) {
     compiler_errors.push_back(std::make_pair(token, message));
 }
