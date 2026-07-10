@@ -33,5 +33,7 @@ public:
         return instance;
     }
     void report_compile_error(std::string message, Token token);
-    void show_compile_error();
+    void report_runtime_error(std::string message, Token token);
+    std::string format_err_message(Token &token, std::string &message);
+    void show_compile_error(); 
 };

@@ -13,21 +13,11 @@ void Interpreter::execute() {
 Main Executors
 */
 RuntimeValue Interpreter::evaluate_expr(Expr *expr) {
-    RuntimeValue value = evaluate(expr);
-
-    if (errors.size() > 0) {
-        report_error();
-        std::exit(70);
-    }
-    return value;
+    return evaluate(expr);
 }
 
 void Interpreter::execute_return_stmt(ReturnStmt *return_stmt) {
     RuntimeValue return_value = evaluate(return_stmt->expr);
-    if (errors.size() > 0) {
-        report_error();
-        std::exit(70);
-    }
     throw ReturnExecption(return_value);
 }
 
@@ -39,9 +29,7 @@ void Interpreter::execute_class_stmt(ClassStmt *class_stmt) {
         super_class = evaluate(class_stmt->super_class);
 
         if (!(is_callable(super_class) && get_callable(super_class)->type == CallableType::CLASS)) {
-            errors.push_back(class_stmt->super_class->identifier.construct_err_message("Superclass must be a class."));
-            report_error();
-            std::exit(70);
+            err_handler.report_runtime_error("Superclass must be a class.", class_stmt->super_class->identifier);
         }
         is_super_class = true;
     }
@@ -67,7 +55,7 @@ void Interpreter::execute_class_stmt(ClassStmt *class_stmt) {
     if (is_super_class) {
         environment = environment->enclosing;
     }
- 
+
     environment->set(class_stmt->name.lexeme, klass);
 }
 
@@ -117,11 +105,6 @@ void Interpreter::execute_stmt(Stmt *stmt) {
 
 void Interpreter::execute_expr_stmt(ExprStmt *expr_stmt) {
     evaluate(expr_stmt->expr);
-
-    if (errors.size() > 0) {
-        report_error();
-        std::exit(70);
-    }
 }
 
 void Interpreter::execute_var_stmt(VariableStmt *varStmt) {
@@ -131,12 +114,6 @@ void Interpreter::execute_var_stmt(VariableStmt *varStmt) {
 
 void Interpreter::execute_prnt_stmt(PrintStmt *prntStmt) {
     RuntimeValue result = evaluate(prntStmt->expr);
-
-    if (errors.size() > 0) {
-        report_error();
-        std::exit(70);
-    }
-
     std::cout << get_runtime_to_str(result) << "\n";
 }
 
@@ -195,18 +172,14 @@ RuntimeValue Interpreter::perform_get_expr(Get *get_node) {
         auto instance = get_aether_instance(value);
         return instance->get(get_node->name);
     }
-    errors.push_back(get_node->name.construct_err_message("Only instances have properties."));
-    report_error();
-    std::exit(70);
+    err_handler.report_runtime_error("Only instances have properties.", get_node->name);
 }
 
 RuntimeValue Interpreter::perform_set_expr(Set *set_node) {
     RuntimeValue instance = evaluate(set_node->expr);
 
     if (!is_aether_instance(instance)) {
-        errors.push_back(set_node->name.construct_err_message("Only instances have fields."));
-        report_error();
-        std::exit(70);
+        err_handler.report_runtime_error("Only instances have fields.", set_node->name);
     }
 
     RuntimeValue value = evaluate_expr(set_node->value);
@@ -222,20 +195,19 @@ RuntimeValue Interpreter::perform_super_expr(Super *super_node) {
 
     auto super_class = environment->getAt(super_key, dist);
     if (is_nil(super_class)) {
-        std::exit(70);
+        err_handler.report_compile_error("Invalid superclass", super_node->keyword);
     }
     auto instance = environment->getAt(this_key, dist - 1);
     if (is_nil(instance)) {
-        std::exit(70);
+        err_handler.report_compile_error("Invalid class", super_node->keyword);
     }
     if (!is_callable(super_class)) {
-        // error
-        std::exit(70);
+        err_handler.report_compile_error("Invalid type of superclass", super_node->keyword);
     }
     auto super_class_2 = get_callable(super_class);
+
     if (super_class_2->type != CallableType::CLASS) {
-        // error
-        std::exit(70);
+        err_handler.report_compile_error("superclass is not callable", super_node->keyword);
     }
 
     auto method = std::static_pointer_cast<AetherClass>(super_class_2)->find_method(super_node->method.lexeme);
@@ -303,7 +275,7 @@ RuntimeValue Interpreter::perform_binary_operation(Binary *binary_node) {
     switch (binary_node->operation.type) {
     case TokenType::STAR: {
         if (check_invalid_values(left_val, right_val)) {
-            push_error("Multiplication operand can't be string", binary_node->operation);
+            err_handler.report_runtime_error("Multiplication operand can't be string", binary_node->operation);
             return nullptr;
         }
         double left = get_number(left_val), right = get_number(right_val);
@@ -311,19 +283,19 @@ RuntimeValue Interpreter::perform_binary_operation(Binary *binary_node) {
     }
     case TokenType::SLASH: {
         if (check_invalid_values(left_val, right_val)) {
-            push_error("Division operand can't be string", binary_node->operation);
+            err_handler.report_runtime_error("Division operand can't be string", binary_node->operation);
             return nullptr;
         }
         double left = get_number(left_val), right = get_number(right_val);
         if ((int)right == 0) {
-            push_error("Division can't be performed by 0", binary_node->operation);
+            err_handler.report_runtime_error("Division can't be performed by 0", binary_node->operation);
             return nullptr;
         }
         return left / right;
     }
     case TokenType::MINUS: {
         if (check_invalid_values(left_val, right_val)) {
-            push_error("Subtraction operand can't be string", binary_node->operation);
+            err_handler.report_runtime_error("Subtraction operand can't be string", binary_node->operation);
             return nullptr;
         }
         double left = get_number(left_val), right = get_number(right_val);
@@ -335,7 +307,7 @@ RuntimeValue Interpreter::perform_binary_operation(Binary *binary_node) {
             return get_string(left_val) + get_string(right_val);
         }
         if (check_invalid_values(left_val, right_val)) {
-            push_error("Addition operand should be number", binary_node->operation);
+            err_handler.report_runtime_error("Addition operand should be number", binary_node->operation);
             return nullptr;
         }
 
@@ -344,7 +316,7 @@ RuntimeValue Interpreter::perform_binary_operation(Binary *binary_node) {
     }
     case TokenType::LESS: {
         if (check_invalid_values(left_val, right_val)) {
-            push_error("Operands must be a number", binary_node->operation);
+            err_handler.report_runtime_error("Operands must be a number", binary_node->operation);
             return nullptr;
         }
         double left = get_number(left_val), right = get_number(right_val);
@@ -352,7 +324,7 @@ RuntimeValue Interpreter::perform_binary_operation(Binary *binary_node) {
     }
     case TokenType::LESS_EQUAL: {
         if (check_invalid_values(left_val, right_val)) {
-            push_error("Operands must be a number", binary_node->operation);
+            err_handler.report_runtime_error("Operands must be a number", binary_node->operation);
             return nullptr;
         }
         double left = get_number(left_val), right = get_number(right_val);
@@ -360,7 +332,7 @@ RuntimeValue Interpreter::perform_binary_operation(Binary *binary_node) {
     }
     case TokenType::GREATER: {
         if (check_invalid_values(left_val, right_val)) {
-            push_error("Operands must be a number", binary_node->operation);
+            err_handler.report_runtime_error("Operands must be a number", binary_node->operation);
             return nullptr;
         }
         double left = get_number(left_val), right = get_number(right_val);
@@ -368,7 +340,7 @@ RuntimeValue Interpreter::perform_binary_operation(Binary *binary_node) {
     }
     case TokenType::GREATER_EQUAL: {
         if (check_invalid_values(left_val, right_val)) {
-            push_error("Operands must be a number", binary_node->operation);
+            err_handler.report_runtime_error("Operands must be a number", binary_node->operation);
             return nullptr;
         }
         double left = get_number(left_val), right = get_number(right_val);
@@ -381,9 +353,9 @@ RuntimeValue Interpreter::perform_binary_operation(Binary *binary_node) {
         return left_val != right_val;
     }
     }
-    push_error("Operands must be a number", binary_node->operation);
+    err_handler.report_runtime_error("Operands must be a number", binary_node->operation);
 
-    errors.push_back("Unexpected operation " + binary_node->operation.lexeme);
+    err_handler.report_runtime_error("Unexpected operation " + binary_node->operation.lexeme, binary_node->operation);
     return nullptr;
 }
 
@@ -399,18 +371,18 @@ RuntimeValue Interpreter::perform_unary_operation(Unary *unary_node) {
         if (is_nil(val))
             return true;
 
-        push_error("Expected operands 'true', 'false' or 'nil'", unary_node->token);
+        err_handler.report_runtime_error("Expected operands 'true', 'false' or 'nil'", unary_node->token);
         return nullptr;
     }
     case TokenType::MINUS:
         if (is_number(val))
             return -get_number(val);
 
-        push_error("Expected operand of type 'number'", unary_node->token);
+        err_handler.report_runtime_error("Expected operand of type 'number'", unary_node->token);
         return nullptr;
     }
 
-    push_error("Unknown operand. Expected 'number', 'nil', 'true' or 'false'", unary_node->token);
+    err_handler.report_runtime_error("Unknown operand. Expected 'number', 'nil', 'true' or 'false'", unary_node->token);
     return nullptr;
 }
 
@@ -436,14 +408,15 @@ RuntimeValue Interpreter::perform_fun_call(Call *fun_call_node) {
         args.push_back(evaluate(expr));
 
     if (!is_callable(calle)) {
-        errors.push_back(fun_call_node->name.construct_err_message("Unknown value found while calling a function"));
+        err_handler.report_runtime_error("Unknown value found while calling a function", fun_call_node->name);
         return nullptr;
     }
 
     auto function = get_callable(calle);
     if (function->arity() != args.size()) {
-        errors.push_back(fun_call_node->name.construct_err_message(
-            "Expected " + std::to_string(function->arity()) + " arguments but got " + std::to_string(args.size())));
+        err_handler.report_runtime_error("Expected " + std::to_string(function->arity()) + " arguments but got " +
+                                             std::to_string(args.size()),
+                                         fun_call_node->name);
         return nullptr;
     }
     return function->call(this, args);
@@ -461,11 +434,6 @@ bool Interpreter::check_invalid_values(RuntimeValue &v1, RuntimeValue &v2) {
     return is_string(v1) || is_string(v2) || is_bool(v2) || is_bool(v1) || is_nil(v1) || is_nil(v2);
 }
 
-void Interpreter::report_error() {
-    for (auto &err : errors) {
-        std::cerr << err << "\n";
-    }
-}
 
 void Interpreter::resolve(Expr *expr, int depth) {
     locals[expr] = depth;
@@ -481,7 +449,5 @@ RuntimeValue Interpreter::look_up_variable(Expr *expr, Token &identifier) {
     if (global->exists(name))
         return global->get(name);
 
-    errors.push_back(identifier.construct_err_message("Undeclared variable: " + name));
-    report_error();
-    std::exit(70);
+    err_handler.report_runtime_error("Undeclared variable: " + name, identifier);
 }

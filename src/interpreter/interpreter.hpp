@@ -6,6 +6,7 @@
 #include "../executor/executor.hpp"
 #include "../parser/expr.hpp"
 #include "../parser/stmt.hpp"
+#include "../exceptions/error_handler.hpp"
 #include <vector>
 
 // I was not planning to define this class, but due to functions I have to define this class in order to
@@ -18,9 +19,9 @@ struct Interpreter {
     EnvironmentTable *global = environment;
 
     std::unordered_map<Expr*, int> locals;
-
-    std::vector<std::string> errors;
     std::vector<Stmt *> stmts;
+
+    ErrorHandler &err_handler = ErrorHandler::get_instance();
 
     void execute();
     void resolve(Expr *expr, int depth);
@@ -50,17 +51,12 @@ struct Interpreter {
     void define_native_fns();
     bool check_invalid_values(RuntimeValue &v1, RuntimeValue &v2);
     RuntimeValue evaluate_expr(Expr *expr);
-    void report_error();
     RuntimeValue look_up_variable(Expr *expr, Token &name);
     RuntimeValue assign_variable(Assign *assign);
 
     Interpreter(std::vector<Stmt *> &stmts) {
         this->stmts = stmts;
         define_native_fns();
-    }
-
-    void push_error(std::string message, Token token) {
-        errors.push_back(token.construct_err_message(message));
     }
 };
 

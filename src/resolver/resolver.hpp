@@ -2,6 +2,7 @@
 
 #include "../interpreter/interpreter.hpp"
 #include "../parser/stmt.hpp"
+#include "../exceptions/error_handler.hpp"
 #include <stack>
 #include <vector>
 
@@ -9,6 +10,7 @@ struct Resolver {
   private:
     Interpreter *interpreter;
     std::vector<std::unordered_map<std::string, bool>> scopes;
+    ErrorHandler &err_handler = ErrorHandler::get_instance();
     
     enum class ClassType {
       NONE,

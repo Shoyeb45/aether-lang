@@ -85,10 +85,13 @@ int main(int argc, char *argv[]) {
 
         std::vector<Stmt *> stmts = parser->parse_stmt();
         err_handler.show_compile_error();
-
+        
         Interpreter *interpreter = new Interpreter(stmts);
         Resolver *resolver = new Resolver(interpreter);
+        
         resolver->resolve();
+        err_handler.show_compile_error();
+
         interpreter->execute();
     } else {
         std::cerr << "Unknown command: " << command << std::endl;

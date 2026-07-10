@@ -1,6 +1,5 @@
 #include "resolver.hpp"
 #include "../parser/node_types.hpp"
-#include <iostream>
 
 // helpers
 void Resolver::declare(Token &name) {
@@ -9,9 +8,8 @@ void Resolver::declare(Token &name) {
 
     std::unordered_map<std::string, bool> &scope = scopes.back();
     if (scope.find(name.lexeme) != scope.end()) {
-        std::cerr << name.construct_err_message("Variable '" + name.lexeme + "' is already declared in this scope.")
-                  << "\n";
-        std::exit(65);
+        err_handler.report_compile_error("Variable '" + name.lexeme + "' is already declared in this scope.", name);
+        return;
     }
 
     scope[name.lexeme] = false;
@@ -98,9 +96,8 @@ void Resolver::resolve_print_stmt(PrintStmt *print_stmt) {
 void Resolver::resolve_return_stmt(ReturnStmt *return_stmt) {
     if (return_stmt->expr) {
         if (current_fun == FunctionType::INTIALIZER) {
-            std::cerr << return_stmt->keyword.construct_err_message("Can't return a value from an initializer.")
-                      << "\n";
-            std::exit(65);
+            err_handler.report_compile_error("Can't return a value from an initializer.", return_stmt->keyword);
+            return;
         }
         resolve_expr(return_stmt->expr);
     }
@@ -119,9 +116,8 @@ void Resolver::resolve_class_declaration(ClassStmt *class_stmt) {
     define(class_stmt->name);
 
     if (class_stmt->super_class && class_stmt->name.lexeme == class_stmt->super_class->identifier.lexeme) {
-        std::cerr << class_stmt->super_class->identifier.construct_err_message("A class can't inherit from itself.")
-                  << "\n";
-        std::exit(65);
+        err_handler.report_compile_error("A class can't inherit from itself.", class_stmt->super_class->identifier);
+        return;
     }
 
     if (class_stmt->super_class) {
@@ -130,7 +126,6 @@ void Resolver::resolve_class_declaration(ClassStmt *class_stmt) {
     }
 
     if (class_stmt->super_class) {
-        // define super class
         begin_scope();
         scopes.back()["super"] = true;
     }
@@ -192,9 +187,8 @@ void Resolver::resolve_variable_expr(Variable *variable) {
     if (!scopes.empty()) {
         auto &scope = scopes.back();
         if (scope.find(variable->identifier.lexeme) != scope.end() && !scope.at(variable->identifier.lexeme)) {
-            std::cerr << variable->identifier.construct_err_message("Can't read local variable in its own initializer.")
-                      << "\n";
-            std::exit(65);
+            err_handler.report_compile_error("Can't read local variable in its own initializer.", variable->identifier);
+            return;
         }
     }
     resolve_local(variable, variable->identifier);
@@ -237,22 +231,20 @@ void Resolver::resolve_set_expr(Set *set) {
 
 void Resolver::resolve_this_expr(This *this_node) {
     if (current_class == ClassType::NONE) {
-        std::cerr << this_node->name.construct_err_message("Can't use 'this' outside of a class.") << "\n";
-        std::exit(65);
+        err_handler.report_compile_error("Can't use 'this' outside of a class.", this_node->name);
+        return;
     }
     resolve_local(this_node, this_node->name);
 }
 
 void Resolver::resolve_super_expr(Super *super_node) {
     if (current_class == ClassType::NONE) {
-        std::cerr << super_node->keyword.construct_err_message(
-                         "Error at 'super': Can't use 'super' outside of a class.")
-                  << "\n";
-        std::exit(65);
+        err_handler.report_compile_error("Error at 'super': Can't use 'super' outside of a class.",
+                                         super_node->keyword);
+        return;
     } else if (current_class != ClassType::SUBCLASS) {
-        std::cerr << super_node->keyword.construct_err_message("Can't use 'super' in a class with no superclass.")
-                  << "\n";
-        std::exit(65);
+        err_handler.report_compile_error("Can't use 'super' in a class with no superclass.", super_node->keyword);
+        return;
     }
 
     resolve_local(super_node, super_node->keyword);
