@@ -58,5 +58,8 @@ struct Interpreter {
         this->stmts = stmts;
         define_native_fns();
     }
+    Interpreter() {
+      define_native_fns();
+    }
 };
 

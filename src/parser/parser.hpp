@@ -67,6 +67,7 @@ struct Parser {
     Parser(std::vector<Token> &tokens) {
         this->tokens = tokens;
     }
+    Parser() {}
     std::vector<Stmt *> parse_stmt();
 
     Expr *parse() {

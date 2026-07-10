@@ -41,3 +41,7 @@ void ErrorHandler::report_runtime_error(std::string message, Token token) {
     std::cerr << format_err_message(token, message);
     std::exit(70);
 }
+
+void ErrorHandler::clear_errors() {
+    compiler_errors.clear();
+}

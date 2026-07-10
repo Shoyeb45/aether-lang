@@ -36,4 +36,5 @@ public:
     void report_runtime_error(std::string message, Token token);
     std::string format_err_message(Token &token, std::string &message);
     void show_compile_error(); 
+    void clear_errors();
 };
