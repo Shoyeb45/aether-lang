@@ -79,7 +79,8 @@ void verify_file_name(const std::string &file_name) {
 void display_help_message() {
     std::cout << "Usage: aether [OPTIONS] INPUT\n\n";
     std::cout << "Options:\n";
-    std::cout << "\thelp \t\t\t\t- Display this message\n";
-    std::cout << "\trun      <filename.ae>\t\t- Execute aether source code\n";
-    std::cout << "\ttokenize <filename.ae>\t\t- Get the tokens of aether source code\n";
+    std::cout << "\thelp                      \t- Display this message\n";
+    std::cout << "\tversion                   \t- Display aether version\n";
+    std::cout << "\trun      <filename.ae>    \t- Execute aether source code\n";
+    std::cout << "\ttokenize <filename.ae>    \t- Get the tokens of aether source code\n";
 }

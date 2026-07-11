@@ -6,4 +6,4 @@ set -e
 #
 # - Edit this to change how your program runs locally
 # - Edit .codecrafters/run.sh to change how your program runs remotely
-exec $(dirname "$0")/build/interpreter "$@"
+exec $(dirname "$0")/build/aether "$@"

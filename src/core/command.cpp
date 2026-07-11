@@ -1,7 +1,7 @@
 #include "command.hpp"
 #include "utils.hpp"
 #include <iostream>
-
+#include "../generated/version.hpp"
 #include "../evaluator/evaluator.hpp"
 #include "../exceptions/error_handler.hpp"
 #include "../executor/executor.hpp"
@@ -28,6 +28,9 @@ void eval_command(int len, char *args[]) {
     if (len == 2) {
         if (command == "help") {
             display_help_message();
+        } else if (command == "version") {
+            std::cout << "aether " << AETHER_VERSION << "\n";
+
         } else {
             std::cout << "\033[31mInvalid Command\033[0m: " << command << "\n";
             display_help_message();
