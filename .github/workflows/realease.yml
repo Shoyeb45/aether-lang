@@ -1,0 +1,75 @@
+name: Release Builds
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            binary_name: aether
+          - os: macos-latest
+            platform: macos
+            binary_name: aether
+          - os: windows-latest
+            platform: windows
+            binary_name: aether.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+
+      - name: Configure
+        run: cmake -B build -S .
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Package (Linux/Mac)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p dist
+          find build -maxdepth 2 -name "${{ matrix.binary_name }}" -exec cp {} dist/ \;
+          cd dist && tar -czf ../aether-${{ env.VERSION }}-${{ matrix.platform }}.tar.gz *
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          mkdir dist
+          Get-ChildItem -Path build -Recurse -Filter "${{ matrix.binary_name }}" | Copy-Item -Destination dist/
+          Compress-Archive -Path dist/* -DestinationPath aether-${{ env.VERSION }}-${{ matrix.platform }}.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aether-${{ env.VERSION }}-${{ matrix.platform }}
+          path: |
+            aether-${{ env.VERSION }}-${{ matrix.platform }}.tar.gz
+            aether-${{ env.VERSION }}-${{ matrix.platform }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
