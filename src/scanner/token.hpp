@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <variant>
 #include "../core/runtime_value.hpp"
+#include <ostream>
 
 enum class TokenType {
     END_OF_FILE,
