@@ -4,23 +4,15 @@
 
 It supports closures, first-class functions, and full class-based OOP with inheritance — built as a from-the-ground-up exploration of how interpreters work, from scanning raw source text to executing an AST.
 
-<!--
-  🎬 GIFs go here — record with a terminal recorder like asciinema, VHS (https://github.com/charmbracelet/vhs),
-  or terminalizer, then convert to GIF and drop the files into docs/assets/.
-
-  Suggested clips:
-  1. Launching the REPL and running a few expressions live
-  2. Running a .ae script file that prints output
-  3. A class/inheritance example executing end-to-end
--->
 
 <p align="center">
-  <img src="docs/assets/demo-classes.gif" alt="Aether classes demo" width="700"/>
+  <img src="docs/assets/aether-demo.gif" alt="Aether classes demo" width="700"/>
+  <i>Demo</i>
 </p>
 
 ---
 
-## Features (v0.1.0)
+## Features
 
 - Primitive types: `number`, `boolean`, `string`, `nil`
 - Arithmetic (`+ - * /`), comparison (`== != < > <= >=`), and logical (`AND`, `OR`) operators
