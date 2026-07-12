@@ -62,7 +62,7 @@ std::string normalize_number_literal(const double num) {
 };
 
 void verify_file_name(const std::string &file_name) {
-    int dot_idx = file_name.find('.');
+    int dot_idx = file_name.find_last_of('.');
 
     if (dot_idx == std::string::npos) {
         std::cerr << "\033[31m[Invalid File] \033[0mPlease provide file with extension '.ae'\n";
