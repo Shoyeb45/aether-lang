@@ -2,9 +2,7 @@
 #include "utils.hpp"
 #include <iostream>
 #include "../generated/version.hpp"
-#include "../evaluator/evaluator.hpp"
 #include "../exceptions/error_handler.hpp"
-#include "../executor/executor.hpp"
 #include "../interpreter/interpreter.hpp"
 #include "../parser/parser.hpp"
 #include "../resolver/resolver.hpp"

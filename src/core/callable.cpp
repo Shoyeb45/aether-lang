@@ -40,7 +40,7 @@ RuntimeValue CustomFunction::call(Interpreter *interpreter, const std::vector<Ru
 }
 
 int CustomFunction::arity() {
-    return (int)declaration->params.size();
+    return (int) declaration->params.size();
 }
 
 std::string CustomFunction::to_string() {
