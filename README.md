@@ -7,7 +7,6 @@ It supports closures, first-class functions, and full class-based OOP with inher
 
 <p align="center">
   <img src="docs/assets/aether-demo.gif" alt="Aether classes demo" width="700"/>
-  <i>Demo</i>
 </p>
 
 ---
