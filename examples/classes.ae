@@ -1,0 +1,28 @@
+
+class Animal {
+    sound() {
+        print "Animal sound";
+    }
+}
+
+class Cat < Animal {
+    sound() {
+        print "Meow... Meow...";
+    }
+}
+
+class Dog < Animal {
+    sound() {
+        print "Bhaw... Bhaw...";
+    }
+}
+
+class Horse < Animal { }
+
+var d = Dog();
+var c = Cat();
+var h = Horse();
+
+d.sound(); // Bhaw... Bhaw...
+d.sound(); // Meow... Meow...
+h.sound(); // Animal sound

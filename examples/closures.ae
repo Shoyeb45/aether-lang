@@ -1,0 +1,16 @@
+fun outer() {
+    var x = 0;
+
+    fun inner() {
+        return x = x + 1;
+    }
+
+    return inner;
+}
+
+var inner = outer();
+
+print inner(); // 1
+print inner(); // 2
+print inner(); // 3
+print inner(); // 4

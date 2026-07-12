@@ -1,0 +1,12 @@
+fun fibonacii(i) {
+    if i <= 0
+        return 0;
+    else if i == 1
+        return 1;
+
+    return fibonacii(i - 1) + fibonacii(i - 2);    
+}
+
+var start = clock();
+print fibonacii(24);
+print (clock() - start) + " Milliseconds";
