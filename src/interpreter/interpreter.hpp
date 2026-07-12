@@ -1,9 +1,7 @@
 #pragma once
 
 #include "../core/runtime_value.hpp"
-#include "../evaluator/environment.hpp"
-#include "../evaluator/evaluator.hpp"
-#include "../executor/executor.hpp"
+#include "../core/environment.hpp"
 #include "../parser/expr.hpp"
 #include "../parser/stmt.hpp"
 #include "../exceptions/error_handler.hpp"

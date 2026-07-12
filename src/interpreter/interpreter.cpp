@@ -302,17 +302,12 @@ RuntimeValue Interpreter::perform_binary_operation(Binary *binary_node) {
         return left - right;
     }
     case TokenType::PLUS: {
-        // string concatenation
-        if (is_string(left_val) && is_string(right_val)) {
-            return get_string(left_val) + get_string(right_val);
-        }
-        if (check_invalid_values(left_val, right_val)) {
-            err_handler.report_runtime_error("Addition operand should be number", binary_node->operation);
-            return nullptr;
+        if (is_number(left_val) && is_number(right_val)) {
+            double left = get_number(left_val), right = get_number(right_val);
+            return left + right;
         }
 
-        double left = get_number(left_val), right = get_number(right_val);
-        return left + right;
+        return get_runtime_to_str(left_val) + get_runtime_to_str(right_val);
     }
     case TokenType::LESS: {
         if (check_invalid_values(left_val, right_val)) {
