@@ -5,8 +5,8 @@
 # installs the binary, and adds it to PATH.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/install.sh | bash
-#   curl -fsSL https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/install.sh | bash -s -- v0.1.0
+#   curl -fsSL https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/scripts/install.sh | bash -s -- v0.1.0
 
 set -euo pipefail
 
@@ -104,4 +104,4 @@ case "$CURRENT_SHELL" in
     ;;
 esac
 
-info "Done! Restart your terminal (or run: source ~/.$(basename "$CURRENT_SHELL")rc) then try: aether --version"
+info "Done! Restart your terminal (or run: source ~/.$(basename "$CURRENT_SHELL")rc) then try: aether version"

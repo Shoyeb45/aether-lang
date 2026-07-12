@@ -3,7 +3,7 @@
   Installs Aether (https://github.com/Shoyeb45/aether-lang) on Windows.
 
 .USAGE
-  iwr https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/install.ps1 -useb | iex
+  iwr https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/scripts/install.ps1 -useb | iex
   # or, for a specific version:
   & ([scriptblock]::Create((iwr https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/install.ps1 -useb).Content)) -Version v0.1.0
 #>
@@ -82,4 +82,4 @@ if ($env:Path -notlike "*$InstallDir*") {
     $env:Path = "$env:Path;$InstallDir"
 }
 
-Write-Info "Done! Open a new terminal (or use this one) and try: aether --version"
+Write-Info "Done! Open a new terminal (or use this one) and try: aether version"
