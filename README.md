@@ -29,18 +29,16 @@ See the [full language guide](docs/LANGUAGE_GUIDE.md) for syntax and examples.
 
 ## Installation
 
-### Option 1 — Prebuilt binaries (recommended)
-
 Grab the latest release for your OS from the [Releases page](https://github.com/Shoyeb45/aether-lang/releases), or run the install script:
 
 **Linux / macOS**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/scripts/install.sh | bash
 ```
 
 **Windows (PowerShell)**
 ```powershell
-iwr https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/install.ps1 -useb | iex
+iwr https://raw.githubusercontent.com/Shoyeb45/aether-lang/main/scripts/install.ps1 -useb | iex
 ```
 
 Verify it worked:
