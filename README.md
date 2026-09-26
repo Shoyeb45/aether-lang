@@ -106,3 +106,8 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the full, up-to-date list.
 ## License
 
 This project is licensed under the terms of the [LICENSE](./LICENSE) file in this repository.
+
+## Acknowledgments
+
+- [crafting interpreters by Robert Nystrom](https://craftinginterpreters.com/) - Thanks for explaning hard concepts in very easy language, cool read
+- [codecrafters exercise](https://app.codecrafters.io/courses/interpreter/overview) - Getting started and proper roadmap with tests, helpful as a beginner
